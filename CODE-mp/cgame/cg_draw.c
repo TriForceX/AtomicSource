@@ -3776,9 +3776,6 @@ int cgYsalTime = 0;
 int cgYsalFadeTime = 0;
 float cgYsalFadeVal = 0;
 
-qboolean gCGHasFallVector = qfalse;
-vec3_t gCGFallVector;
-
 /*
 =================
 CG_Draw2D
@@ -4334,20 +4331,6 @@ static void CG_Draw2D( void ) {
 		hcolor[2] = 0;
 
 		CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, hcolor);
-
-		if (!gCGHasFallVector)
-		{
-			VectorCopy(cg.snap->ps.origin, gCGFallVector);
-			gCGHasFallVector = qtrue;
-		}
-	}
-	else
-	{
-		if (gCGHasFallVector)
-		{
-			gCGHasFallVector = qfalse;
-			VectorClear(gCGFallVector);
-		}
 	}
 
 	CG_DrawVote();

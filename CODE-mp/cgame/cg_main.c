@@ -503,6 +503,9 @@ vmCvar_t	cg_recordSPDemo;
 vmCvar_t	cg_recordSPDemoName;
 
 vmCvar_t	ui_myteam;
+vmCvar_t	cg_com_maxfps;
+vmCvar_t	cg_smoothCamera;
+vmCvar_t	cg_smoothCameraFPS;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -653,6 +656,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 
 	{ &ui_myteam, "ui_myteam", "0", CVAR_ROM|CVAR_INTERNAL},
+	{ &cg_com_maxfps, "com_maxfps", "", 0},
+	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE },
+	{ &cg_smoothCameraFPS, "cg_smoothCameraFPS", "0", CVAR_ARCHIVE },
 
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 /*
