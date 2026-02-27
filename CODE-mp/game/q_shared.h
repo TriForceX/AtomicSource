@@ -930,6 +930,7 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 //=============================================
 
 float Com_Clamp( float min, float max, float value );
+char *Q_stristr(const char *s, const char *find);
 
 char	*COM_SkipPath( char *pathname );
 void	COM_StripExtension( const char *in, char *out );

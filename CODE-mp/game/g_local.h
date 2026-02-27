@@ -547,6 +547,9 @@ void Cmd_EngageDuel_f(gentity_t *ent);
 
 gentity_t *G_GetDuelWinner(gclient_t *client);
 int G_ClientNumberFromArg(char* name);
+void SanitizeString2( char *in, char *out );
+void dsp_stringEscape(char *in, char *out, int outSize);
+void StandardSetBodyAnim(gentity_t *self, int anim, int flags);
 
 //
 // g_items.c

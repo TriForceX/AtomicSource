@@ -8,7 +8,6 @@
 int AcceptBotCommand(char *cmd, gentity_t *pl);
 //end rww
 
-void dsp_stringEscape(char *in, char *out, int outSize);
 void BG_CycleInven(playerState_t *ps, int direction);
 void BG_CycleForce(playerState_t *ps, int direction);
 
