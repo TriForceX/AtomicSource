@@ -387,6 +387,142 @@ void	Svcmd_ForceTeam_f( void ) {
 	SetTeam( &g_entities[cl - level.clients], str );
 }
 
+/*
+=====================================================================
+// Tr!Force: Teleport command function
+=====================================================================
+*/
+static void JKMod_svCmd_teleportPlayer(void)
+{
+	char	arg1[MAX_STRING_CHARS];
+	char	arg2[MAX_STRING_CHARS];
+	int		target, destiny;
+
+	if (trap_Argc() < 3)
+	{
+		G_Printf("Usage: teleport <targetplayer> <destinyplayer/coordinates>\n");
+	}
+	else
+	{
+		trap_Argv(1, arg1, sizeof(arg1));
+		trap_Argv(2, arg2, sizeof(arg2));
+
+		// Check target player
+		target = G_ClientNumberFromArg(arg1);
+
+        if (target == -1) {
+            G_Printf("Can't find client ID for %s\n", arg1);
+            return;
+        }
+        if (target == -2) {
+            G_Printf("Found more than one ID for %s\n", arg1);
+            return;
+        }
+		if (target < 0 || target >= MAX_CLIENTS) {
+			G_Printf("Bad client ID\n", arg1);
+			return;
+		}
+        if (!g_entities[target].inuse) {
+            G_Printf("Client %s is not active\n", arg1);
+            return;
+        }
+
+		// Check destiny player
+		G_Printf("Checking destiny player...\n");
+
+		destiny = G_ClientNumberFromArg(arg2);
+
+		if (destiny == -1) {
+            G_Printf("Can't find client ID for %s\n", arg2);
+			destiny = -1;
+        }
+        else if (destiny == -2) {
+            G_Printf("Found more than one ID for %s\n", arg2);
+			destiny = -1;
+        }
+		else if (destiny < 0 || destiny >= MAX_CLIENTS) {
+			G_Printf("Bad client ID\n", arg2);
+			destiny = -1;
+		}
+        else if (!g_entities[destiny].inuse) {
+            G_Printf("Client %s is not active\n", arg2);
+			destiny = -1;
+        }
+
+		// Teleport target
+		if (target != -1)
+		{
+			vec3_t temporigin, tempangles, tempfwd;
+			gentity_t *targetPlayer = &g_entities[target];
+
+			// To player
+			if (destiny != -1)
+			{
+				gentity_t *destinyPlayer = &g_entities[destiny];
+				vec3_t mins = { -15, -15, DEFAULT_MINS_2 }, maxs = { 15, 15, DEFAULT_MAXS_2 };
+
+				if (target == destiny)
+				{
+					G_Printf("You can't teleport him to himself\n");
+					return;
+				}
+
+				if (!JKMod_CheckSolid(destinyPlayer, 50, mins, maxs, qfalse))
+				{
+					G_Printf("You can't teleport in this place\n");
+					return;
+				}
+
+				tempangles[ROLL] = 0;
+				tempangles[PITCH] = 0;
+				tempangles[YAW] = AngleNormalize360(destinyPlayer->client->ps.viewangles[YAW] + 180);
+			
+				VectorCopy(destinyPlayer->client->ps.origin, temporigin);
+				AngleVectors(destinyPlayer->client->ps.viewangles, tempfwd, NULL, NULL);
+				tempfwd[2] = 0;
+				VectorNormalize(tempfwd);
+				VectorMA(destinyPlayer->client->ps.origin, 50, tempfwd, temporigin);
+				temporigin[2] = destinyPlayer->client->ps.origin[2] + 5;
+
+				destinyPlayer->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL;
+				destinyPlayer->client->ps.forceHandExtendTime = level.time + 300;
+			}
+			// To coords
+			else
+			{
+				char	arg3[MAX_STRING_CHARS];
+				char	arg4[MAX_STRING_CHARS];
+				char	arg5[MAX_STRING_CHARS];
+
+				trap_Argv(3, arg3, sizeof(arg3));
+				trap_Argv(4, arg4, sizeof(arg4));
+				trap_Argv(5, arg5, sizeof(arg5));
+
+				G_Printf("Checking coordinates...\n");
+
+				temporigin[0] = atoi(arg2);
+				temporigin[1] = atoi(arg3);
+				temporigin[2] = atoi(arg4);
+				tempangles[YAW] = atoi(arg5);
+
+				if (temporigin[0] && temporigin[1] && temporigin[2]) 
+				{
+					tempangles[ROLL] = 0;
+					tempangles[PITCH] = 0;
+				}
+				else
+				{
+					G_Printf("Invalid coordinates!\n");
+					return;
+				}
+			}
+			
+			TeleportPlayer(targetPlayer, temporigin, tempangles);
+			G_Printf("Player teleported!\n");
+		}
+	}
+}
+
 char	*ConcatArgs( int start );
 
 /*
@@ -442,6 +578,13 @@ qboolean	ConsoleCommand( void ) {
 
 	if (Q_stricmp (cmd, "listip") == 0) {
 		trap_SendConsoleCommand( EXEC_NOW, "g_banIPs\n" );
+		return qtrue;
+	}
+
+	// Tr!Force: Teleport command
+	if (!Q_stricmp(cmd, "teleport"))
+	{
+		JKMod_svCmd_teleportPlayer();
 		return qtrue;
 	}
 

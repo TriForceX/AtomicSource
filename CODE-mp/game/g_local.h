@@ -546,6 +546,7 @@ void Cmd_ToggleSaber_f(gentity_t *ent);
 void Cmd_EngageDuel_f(gentity_t *ent);
 
 gentity_t *G_GetDuelWinner(gclient_t *client);
+int G_ClientNumberFromArg(char* name);
 
 //
 // g_items.c
@@ -608,6 +609,7 @@ qboolean	G_EntitiesFree( void );
 
 void	G_TouchTriggers (gentity_t *ent);
 void	G_TouchSolids (gentity_t *ent);
+qboolean JKMod_CheckSolid(gentity_t *ent, int distance, vec3_t mins, vec3_t maxs, qboolean elevation); // Tr!Force: Check solid (function link)
 
 //
 // g_object.c
