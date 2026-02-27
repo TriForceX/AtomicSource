@@ -1660,12 +1660,21 @@ int LoadPathData(const char *filename)
 	if (!f)
 	{
 		G_Printf(S_COLOR_YELLOW "Bot route data not found\n");
+		level.botRouteInvalid = qtrue; // Tr!Force: Bot safe check (update status)
 		return 2;
 	}
 
 	if (len >= 524288)
 	{
 		G_Printf(S_COLOR_RED "Route file exceeds maximum length\n");
+		level.botRouteInvalid = qtrue; // Tr!Force: Bot safe check (update status)
+		return 0;
+	}
+
+	if (len == 0) // Tr!Force: Bot safe check (extra check)
+	{
+		G_Printf(S_COLOR_YELLOW "Bot route data is empty\n");
+		level.botRouteInvalid = qtrue;
 		return 0;
 	}
 

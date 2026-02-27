@@ -517,6 +517,7 @@ typedef struct {
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
 	int			portalSequence;
+	qboolean	botRouteInvalid;		// Tr!Force: Bot safe path check (invalid bot route status)
 } level_locals_t;
 
 

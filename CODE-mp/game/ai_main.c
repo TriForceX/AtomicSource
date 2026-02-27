@@ -74,6 +74,7 @@ vmCvar_t bot_wp_edit;
 vmCvar_t bot_wp_clearweight;
 vmCvar_t bot_wp_distconnect;
 vmCvar_t bot_wp_visconnect;
+vmCvar_t bot_wp_safecheck; // Tr!Force: Bot safe check (cvar link)
 //end rww
 
 wpobject_t *flagRed;
@@ -509,7 +510,7 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 BotInputToUserCommand
 ==============
 */
-void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time, int useTime) {
+void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time, int useTime, bot_state_t *bs) { // Tr!Force: Add bot state info
 	vec3_t angles, forward, right;
 	short temp;
 	int j;
@@ -598,6 +599,13 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//
 	//Com_Printf("forward = %d right = %d up = %d\n", ucmd.forwardmove, ucmd.rightmove, ucmd.upmove);
 	//Com_Printf("ucmd->serverTime = %d\n", ucmd->serverTime);
+
+	// Tr!Force: Bot safe path check (real time)
+	trap_Cvar_Update(&bot_wp_safecheck);
+
+	if (bot_wp_safecheck.integer == 1 || (bot_wp_safecheck.integer == 2 && level.botRouteInvalid)) {
+		BotHandleMovementSafety(bs, ucmd);
+	}
 }
 
 /*
@@ -622,7 +630,7 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 		if (bs->lastucmd.buttons & BUTTON_ATTACK) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
 	}
 	//convert the bot input to a usercmd
-	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime);
+	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime, bs); // Tr!Force: Add bot state info
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
 		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
@@ -5180,29 +5188,6 @@ wantuseitem:
 	return 1;
 }
 
-qboolean BotNearLedge(bot_state_t *bs) //Tox TriForce Rocks!
-{
-	trace_t tr;
-	vec3_t start, end;
-
-	AngleVectors(bs->viewangles, end, NULL, NULL);
-
-	start[0] = bs->origin[0]+(end[0]*40);
-	start[1] = bs->origin[1]+(end[1]*40);
-	start[2] = bs->origin[2]+16;
-
-	VectorCopy(start, end);
-	end[2] -= 106;
-
-	trap_Trace(&tr, start, NULL, NULL, end, bs->client, MASK_SOLID);
-
-	if (tr.fraction == 1.0 && bs->cur_ps.groundEntityNum != ENTITYNUM_NONE)
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-
 int BotWeaponBlockable(int weapon)
 {
 	switch (weapon)
@@ -5837,11 +5822,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 					if (bs->cur_ps.saberHolstered) {
 						Cmd_ToggleSaber_f(&g_entities[bs->client]);
 					}
-					if (bs->frame_Enemy_Len < 40 || (bs->frame_Enemy_Len < 200 && bs->currentEnemy->client->ps.groundEntityNum == ENTITYNUM_NONE)) {
-					} else {
-						if (!BotNearLedge(bs)) {
-							trap_EA_MoveForward(bs->client);
-						}
+					if (!(bs->frame_Enemy_Len < 40 || (bs->frame_Enemy_Len < 200 && bs->currentEnemy->client->ps.groundEntityNum == ENTITYNUM_NONE))) {
+						trap_EA_MoveForward(bs->client);
 					}
 					if (bs->cur_ps.fd.forceGripBeingGripped > level.time && g_entities[bs->client].client->ps.fd.forcePower == 100) {
 						level.clients[bs->client].ps.fd.forcePowerSelected = FP_PUSH;
@@ -5879,7 +5861,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				}
 			}
 		} else {
-			if (bs->frame_Enemy_Len > 200 && !BotNearLedge(bs)) {
+			if (bs->frame_Enemy_Len > 200) {
 				trap_EA_MoveForward(bs->client);
 			} else if (bs->frame_Enemy_Len < 180) {
 				trap_EA_MoveBack(bs->client);
@@ -6451,6 +6433,7 @@ int BotAISetup( int restart ) {
 	trap_Cvar_Register(&bot_wp_clearweight, "bot_wp_clearweight", "1", 0);
 	trap_Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "1", 0);
 	trap_Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "1", 0);
+	trap_Cvar_Register(&bot_wp_safecheck, "bot_wp_safecheck", "0", 0); // Tr!Force: Bot safe check (cvar 0: disabled, 1: always on, 2: only when botroute not found or invalid)
 
 	trap_Cvar_Update(&bot_forcepowers);
 	//end rww
@@ -6496,3 +6479,109 @@ int BotAIShutdown( int restart ) {
 	return qtrue;
 }
 
+/*
+=====================================================================
+Tr!Force: Bot safe path check functions
+=====================================================================
+*/
+#define BOT_SAFE_MOVE_DIST     72.0f
+#define BOT_SAFE_MOVE_HEIGHT   24.0f
+#define BOT_SAFE_MOVE_DOWN     128.0f
+#define BOT_SAFE_WALL_DIST     36.0f
+
+qboolean BotDirectionSafe(bot_state_t *bs, vec3_t dir)
+{
+    trace_t tr;
+    vec3_t start, end;
+
+    if (VectorLength(dir) < 0.1f) return qtrue;
+
+    VectorNormalize(dir);
+
+    // Wall Check
+    VectorMA(bs->origin, BOT_SAFE_WALL_DIST, dir, end);
+    trap_Trace(&tr, bs->origin, NULL, NULL, end, bs->client, MASK_SOLID);
+
+    if (tr.fraction < 1.0f && !tr.startsolid) return qfalse;
+
+    // Ledge Check
+    VectorMA(bs->origin, BOT_SAFE_MOVE_DIST, dir, start);
+    start[2] += BOT_SAFE_MOVE_HEIGHT;
+
+    VectorCopy(start, end);
+    end[2] -= BOT_SAFE_MOVE_DOWN;
+
+    trap_Trace(&tr, start, NULL, NULL, end, bs->client, MASK_SOLID);
+
+    if (tr.fraction == 1.0f) return qfalse;
+
+    return qtrue;
+}
+
+void BotHandleMovementSafety(bot_state_t *bs, usercmd_t *ucmd)
+{
+    vec3_t forward, right;
+    vec3_t intendedDir;
+    vec3_t testDir;
+    vec3_t angles;
+    float newYaw;
+
+    if (!ucmd->forwardmove && !ucmd->rightmove) return;
+
+    AngleVectors(bs->viewangles, forward, right, NULL);
+
+    VectorClear(intendedDir);
+
+    if (ucmd->forwardmove) VectorMA(intendedDir, (float)ucmd->forwardmove / 127.0f, forward, intendedDir);
+
+    if (ucmd->rightmove) VectorMA(intendedDir, (float)ucmd->rightmove / 127.0f, right, intendedDir);
+
+    if (VectorLength(intendedDir) < 0.1f) return;
+
+    VectorNormalize(intendedDir);
+
+    // If safe, continue normally
+    if (BotDirectionSafe(bs, intendedDir)) return;
+
+    // Try right 90 degrees
+    newYaw = AngleNormalize360(bs->viewangles[YAW] + 90);
+
+    angles[PITCH] = 0;
+    angles[YAW] = newYaw;
+    angles[ROLL] = 0;
+
+    AngleVectors(angles, testDir, NULL, NULL);
+
+    if (BotDirectionSafe(bs, testDir))
+    {
+        bs->viewangles[YAW] = newYaw;
+        ucmd->forwardmove = 127;
+        ucmd->rightmove = 0;
+        return;
+    }
+
+    // Try left -90 degrees
+    newYaw = AngleNormalize360(bs->viewangles[YAW] - 90);
+
+    angles[PITCH] = 0;
+    angles[YAW] = newYaw;
+    angles[ROLL] = 0;
+
+    AngleVectors(angles, testDir, NULL, NULL);
+
+    if (BotDirectionSafe(bs, testDir))
+    {
+        bs->viewangles[YAW] = newYaw;
+        ucmd->forwardmove = 127;
+        ucmd->rightmove = 0;
+        return;
+    }
+
+    // Turn Around 180 degrees
+    newYaw = AngleNormalize360(bs->viewangles[YAW] + 180);
+
+    bs->viewangles[YAW] = newYaw;
+
+    ucmd->forwardmove = 127;
+    ucmd->rightmove = 0;
+}
