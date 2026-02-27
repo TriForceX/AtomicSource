@@ -142,6 +142,8 @@ int G_GetMapTypeBits(char *type)
 		}
 		if( strstr( type, "duel" ) ) {
 			typeBits |= (1 << GT_TOURNAMENT);
+			typeBits |= (1 << GT_FFA);
+			typeBits |= (1 << GT_TEAM);
 		}
 		if( strstr( type, "saga" ) ) {
 			typeBits |= (1 << GT_SAGA);
@@ -253,7 +255,7 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 		}
 
 		type = Info_ValueForKey(g_arenaInfos[n], "type");
-		
+
 		typeBits = G_GetMapTypeBits(type);
 		if (typeBits & (1 << gametype))
 		{
@@ -312,7 +314,7 @@ static void G_LoadArenas( void ) {
 		G_LoadArenasFromFile(filename);
 	}
 	trap_Printf( va( "%i arenas parsed\n", g_numArenas ) );
-	
+
 	for( n = 0; n < g_numArenas; n++ ) {
 		Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) );
 	}
@@ -427,7 +429,6 @@ void G_AddRandomBot( int team ) {
 				else teamstr = "";
 				strncpy(netname, value, sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
-				Q_CleanStr(netname);
 				trap_SendConsoleCommand( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, skill, teamstr, 0) );
 				return;
 			}
@@ -536,8 +537,8 @@ void G_CheckMinimumPlayers( void ) {
 	static int checkminimumplayers_time;
 
 	if (level.intermissiontime) return;
-	//only check once each 10 seconds
-	if (checkminimumplayers_time > level.time - 10000) {
+	//Tox: bot minplayers spawn interval
+	if (checkminimumplayers_time > level.time - 100) {
 		return;
 	}
 	checkminimumplayers_time = level.time;

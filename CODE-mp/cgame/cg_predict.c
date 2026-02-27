@@ -350,7 +350,7 @@ static void CG_TouchItem( centity_t *cent ) {
 	// if its a weapon, give them some predicted ammo so the autoswitch will work
 	if ( item->giType == IT_WEAPON ) {
 		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-		if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
+			if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
 			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
 		}
 	}
@@ -379,7 +379,7 @@ static void CG_TouchTriggerPrediction( void ) {
 
 	spectator = ( cg.predictedPlayerState.pm_type == PM_SPECTATOR );
 
-	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && cg.predictedPlayerState.pm_type != PM_FLOAT && !spectator ) {
+	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && cg.predictedPlayerState.pm_type != PM_JETPACK && cg.predictedPlayerState.pm_type != PM_FLOAT && !spectator ) {
 		return;
 	}
 

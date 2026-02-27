@@ -88,8 +88,12 @@ void trap_DropClient( int clientNum, const char *reason ) {
 }
 
 void trap_SendServerCommand( int clientNum, const char *text ) {
-	syscall( G_SEND_SERVER_COMMAND, clientNum, text );
-}
+	//JediDog: Added 'anti msgboom/jamsgbof'
+        if( strlen( text ) > 1000 ) {
+                return;
+        }
+        syscall( G_SEND_SERVER_COMMAND, clientNum, text );
+} 
 
 void trap_SetConfigstring( int num, const char *string ) {
 	syscall( G_SET_CONFIGSTRING, num, string );

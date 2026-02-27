@@ -184,6 +184,10 @@ typedef struct bot_state_s
 	vec3_t viewangles;								//current view angles
 	vec3_t ideal_viewangles;						//ideal view angles
 	vec3_t viewanglespeed;
+	int BOTtaunt;
+	int BOTstop;
+	int BOTjump;
+	int BOTtimer;
 
 	//rww - new AI values
 	gentity_t			*currentEnemy;
@@ -276,10 +280,6 @@ typedef struct bot_state_s
 	gentity_t			*chatObject;
 	gentity_t			*chatAltObject;
 
-	float				meleeStrafeTime;
-	int					meleeStrafeDir;
-	float				meleeStrafeDisable;
-
 	int					altChargeTime;
 
 	float				escapeDirTime;
@@ -324,16 +324,6 @@ typedef struct bot_state_s
 	int					jmState;
 
 	int					state_Forced; //set by player ordering menu
-
-	int					saberDefending;
-	int					saberDefendDecideTime;
-	int					saberBFTime;
-	int					saberBTime;
-	int					saberSTime;
-	int					saberThrowTime;
-
-	qboolean			saberPower;
-	int					saberPowerTime;
 
 	int					botChallengingTime;
 

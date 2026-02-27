@@ -100,7 +100,7 @@ float	FloatSwap (const float *f);
 #endif
 #endif
 
-#define ID_INLINE __inline 
+#define ID_INLINE __inline
 
 static ID_INLINE short BigShort( short l) { return ShortSwap(l); }
 #define LittleShort
@@ -121,7 +121,7 @@ static ID_INLINE float BigFloat(const float *l) { FloatSwap(l); }
 #define __cdecl
 #define __declspec(x)
 #define stricmp strcasecmp
-#define ID_INLINE inline 
+#define ID_INLINE inline
 
 #ifdef __ppc__
 #define CPUSTRING	"MacOSX-ppc"
@@ -138,21 +138,21 @@ static ID_INLINE float BigFloat(const float *l) { FloatSwap(l); }
 
 static inline unsigned int __lwbrx(register void *addr, register int offset) {
     register unsigned int word;
-    
+
     asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
     return word;
 }
 
 static inline unsigned short __lhbrx(register void *addr, register int offset) {
     register unsigned short halfword;
-    
+
     asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
     return halfword;
 }
 
 static inline float __fctiw(register float f) {
     register float fi;
-    
+
     asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
 
     return fi;
@@ -173,7 +173,7 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 
 #include <MacTypes.h>
 #define	MAC_STATIC
-#define ID_INLINE inline 
+#define ID_INLINE inline
 
 #define	CPUSTRING	"MacOS-PPC"
 
@@ -200,7 +200,7 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define stricmp strcasecmp
 
 #define	MAC_STATIC // bk: FIXME
-#define ID_INLINE inline 
+#define ID_INLINE inline
 
 #ifdef __i386__
 #define	CPUSTRING	"linux-i386"
@@ -244,7 +244,7 @@ inline static float LittleFloat (const float *l) { return FloatSwap(l); }
 #define stricmp strcasecmp
 
 #define MAC_STATIC
-#define ID_INLINE inline 
+#define ID_INLINE inline
 
 #ifdef __i386__
 #define CPUSTRING       "freebsd-i386"
@@ -716,7 +716,7 @@ extern	vec3_t	axisDefault[3];
 static inline float Q_rsqrt( float number ) {
 		float x = 0.5f * number;
                 float y;
-#ifdef __GNUC__            
+#ifdef __GNUC__
                 asm("frsqrte %0,%1" : "=f" (y) : "f" (number));
 #else
 		y = __frsqrte( number );
@@ -724,10 +724,10 @@ static inline float Q_rsqrt( float number ) {
 		return y * (1.5f - (x * y * y));
 	}
 
-#ifdef __GNUC__            
+#ifdef __GNUC__
 static inline float Q_fabs(float x) {
     float abs_x;
-    
+
     asm("fabs %0,%1" : "=f" (abs_x) : "f" (x));
     return abs_x;
 }
@@ -810,7 +810,7 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]) {
 		return 0;
-	}			
+	}
 	return 1;
 }
 
@@ -871,7 +871,7 @@ vec_t VectorLengthSquared( const vec3_t v );
 vec_t Distance( const vec3_t p1, const vec3_t p2 );
 
 vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 );
- 
+
 void VectorNormalizeFast( vec3_t v );
 
 void VectorInverse( vec3_t v );
@@ -1403,7 +1403,7 @@ typedef enum {
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				16		
+#define	MAX_WEAPONS				16
 
 #define	MAX_PS_EVENTS			2
 
@@ -1644,7 +1644,7 @@ typedef struct playerState_s {
 										// walking will use different animations and
 										// won't generate footsteps
 #define	BUTTON_USE				32			// the ol' use key returns!
-#define BUTTON_FORCEGRIP		64			// 
+#define BUTTON_FORCEGRIP		64			//
 #define BUTTON_ALT_ATTACK		128
 
 #define	BUTTON_ANY				256			// any key whatsoever
@@ -1700,7 +1700,7 @@ typedef struct usercmd_s {
 	int				serverTime;
 	int				angles[3];
 	int 			buttons;
-	byte			weapon;           // weapon 
+	byte			weapon;           // weapon
 	byte			forcesel;
 	byte			invensel;
 	byte			generic_cmd;
@@ -1905,7 +1905,7 @@ typedef struct entityState_s {
 typedef enum {
 	CA_UNINITIALIZED,
 	CA_DISCONNECTED, 	// not talking to a server
-	CA_AUTHORIZING,		// not used any more, was checking cd key 
+	CA_AUTHORIZING,		// not used any more, was checking cd key
 	CA_CONNECTING,		// sending request packets to the server
 	CA_CHALLENGING,		// sending challenge packets to the server
 	CA_CONNECTED,		// netchan_t established, getting gamestate
@@ -1971,6 +1971,7 @@ typedef enum _flag_status {
 #define SAY_ALL		0
 #define SAY_TEAM	1
 #define SAY_TELL	2
+#define SAY_CLAN	3
 
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
@@ -1992,7 +1993,7 @@ typedef struct {
 
 typedef enum Eorientations
 {
-	ORIGIN = 0, 
+	ORIGIN = 0,
 	POSITIVE_X,
 	POSITIVE_Z,
 	POSITIVE_Y,
@@ -2013,9 +2014,9 @@ typedef enum {
 } memtag_t;
 
 
-typedef struct 
+typedef struct
 {
-	int		isValid;	
+	int		isValid;
 	void	*ghoul2;
 	int		modelNum;
 	int		boltNum;

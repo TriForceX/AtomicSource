@@ -17,7 +17,6 @@
 
 
 #define	RESPAWN_ARMOR		20
-#define	RESPAWN_TEAM_WEAPON	30
 #define	RESPAWN_HEALTH		30
 #define	RESPAWN_AMMO		40
 #define	RESPAWN_HOLDABLE	60
@@ -61,7 +60,7 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 		{	// From 12-32, scale from 0.5 to 0.25;
 			respawnTime *= 20.0 / (float)(level.numPlayingClients + 8);
 		}
-		else 
+		else
 		{	// From 4-12, scale from 1.0 to 0.5;
 			respawnTime *= 8.0 / (float)(level.numPlayingClients + 4);
 		}
@@ -77,7 +76,7 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 
 
 #define SHIELD_HEALTH				250
-#define SHIELD_HEALTH_DEC			10		// 25 seconds	
+#define SHIELD_HEALTH_DEC			10		// 25 seconds
 #define MAX_SHIELD_HEIGHT			254
 #define MAX_SHIELD_HALFWIDTH		255
 #define SHIELD_HALFTHICKNESS		4
@@ -156,7 +155,7 @@ void ShieldGoSolid(gentity_t *self)
 		ShieldRemove(self);
 		return;
 	}
-	
+
 	trap_Trace (&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY );
 	if(tr.startsolid)
 	{	// gah, we can't activate yet
@@ -313,7 +312,7 @@ void CreateShield(gentity_t *ent)
 	ent->touch = ShieldTouch;
 
 	// see if we're valid
-	trap_Trace (&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY ); 
+	trap_Trace (&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY );
 
 	if (tr.startsolid)
 	{	// Something in the way!
@@ -496,7 +495,7 @@ void pas_fire( gentity_t *ent )
 
 	VectorSubtract(enOrg, myOrg, fwd);
 	VectorNormalize(fwd);
-	
+
 	myOrg[0] += fwd[0]*16;
 	myOrg[1] += fwd[1]*16;
 	myOrg[2] += fwd[2]*16;
@@ -548,6 +547,11 @@ static qboolean pas_find_enemies( gentity_t *self )
 	{
 		target = entity_list[i];
 
+		//TOX: sentry ignore bots and unarmed or chatting
+		if (target->client->ps.saberHolstered || target->client->ps.eFlags & EF_TALK)
+		{
+			continue;
+		}
 		if ( !target->client )
 		{
 			continue;
@@ -557,7 +561,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 		if ( self->noDamageTeam && target->client->sess.sessionTeam == self->noDamageTeam )
-		{ 
+		{
 			continue;
 		}
 		if (self->boltpoint3 == target->s.number)
@@ -655,7 +659,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		ent->enemy = NULL;
 		// shut-down sound
 		G_Sound( ent, CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
-	
+
 		ent->bounceCount = level.time + 500 + random() * 150;
 
 		// make turret play ping sound for 5 seconds
@@ -670,7 +674,7 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 void sentryExpire(gentity_t *self)
 {
-	turret_die(self, self, self, 1000, MOD_UNKNOWN);	
+	turret_die(self, self, self, 1000, MOD_UNKNOWN);
 }
 
 //---------------------------------
@@ -784,6 +788,10 @@ void pas_think( gentity_t *ent )
 		{
 			ent->enemy = NULL;
 		}
+		else if (ent->enemy->client->ps.saberHolstered || ent->enemy->client->ps.eFlags & EF_TALK)
+		{
+			ent->enemy = NULL;
+		}
 	}
 
 	if ( !ent->enemy )
@@ -810,7 +818,7 @@ void pas_think( gentity_t *ent )
 	{
 		// ...then we'll calculate what new aim adjustments we should attempt to make this frame
 		// Aim at enemy
-		if ( ent->enemy->client )
+		if (ent->enemy->client)
 		{
 			VectorCopy( ent->enemy->client->ps.origin, org );
 		}
@@ -940,7 +948,7 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	G_FreeEntity( self );
 }
 
-#define TURRET_AMMO_COUNT 40
+#define TURRET_AMMO_COUNT 400
 
 //---------------------------------
 void SP_PAS( gentity_t *base )
@@ -1104,7 +1112,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
 		// round timing to seconds to make multiple powerup timers
 		// count in sync
-		other->client->ps.powerups[ent->item->giTag] = 
+		other->client->ps.powerups[ent->item->giTag] =
 			level.time - ( level.time % 1000 );
 
 		G_LogWeaponPowerup(other->s.number, ent->item->giTag);
@@ -1260,12 +1268,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
 
 	G_LogWeaponPickup(other->s.number, ent->item->giTag);
-	
-	// team deathmatch has slow weapon respawns
-	if ( g_gametype.integer == GT_TEAM ) 
-	{
-		return adjustRespawnTime(RESPAWN_TEAM_WEAPON, ent->item->giType, ent->item->giTag);
-	}
 
 	return adjustRespawnTime(g_weaponRespawn.integer, ent->item->giType, ent->item->giTag);
 }
@@ -1306,10 +1308,10 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 
 //======================================================================
 
-int Pickup_Armor( gentity_t *ent, gentity_t *other ) 
+int Pickup_Armor( gentity_t *ent, gentity_t *other )
 {
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
-	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag ) 
+	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag )
 	{
 		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag;
 	}
@@ -1576,8 +1578,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	ent->r.contents = 0;
 
 	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
+	// A negative respawn times means to never respawn this item (but don't
+	// delete it).  This is used by items that are respawned by third party
 	// events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
@@ -1694,7 +1696,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 150, velocity );
 	velocity[2] += 200 + crandom() * 50;
-	
+
 	return LaunchItem( item, ent->s.pos.trBase, velocity );
 }
 
@@ -1728,69 +1730,21 @@ void FinishSpawningItem( gentity_t *ent ) {
 //	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
 //	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
 
-	if (g_gametype.integer != GT_JEDIMASTER)
+	if (g_gametype.integer != GT_JEDIMASTER && ent->item->giType != IT_WEAPON && ent->item->giTag != HI_SENTRY_GUN && ent->item->giType != IT_TEAM)
 	{
-		if (HasSetSaberOnly())
-		{
-			if (ent->item->giType == IT_AMMO)
-			{
-				G_FreeEntity( ent );
-				return;
-			}
-
-			if (ent->item->giType == IT_HOLDABLE)
-			{
-				if (ent->item->giTag == HI_SEEKER ||
-					ent->item->giTag == HI_SHIELD ||
-					ent->item->giTag == HI_SENTRY_GUN)
-				{
-					G_FreeEntity( ent );
-					return;
-				}
-			}
-		}
-	}
-	else
-	{ //no powerups in jedi master
-		if (ent->item->giType == IT_POWERUP)
-		{
-			G_FreeEntity(ent);
-			return;
-		}
+		G_FreeEntity( ent );
+		return;
 	}
 
-	if (g_gametype.integer == GT_HOLOCRON)
+	if (g_weaponDisable.integer == 65531 && ent->item->giType != IT_TEAM)
 	{
-		if (ent->item->giType == IT_POWERUP)
-		{
-			if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT ||
-				ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK)
-			{
-				G_FreeEntity(ent);
-				return;
-			}
-		}
-	}
-
-	if (g_forcePowerDisable.integer)
-	{ //if force powers disabled, don't add force powerups
-		if (ent->item->giType == IT_POWERUP)
-		{
-			if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT ||
-				ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK ||
-				ent->item->giTag == PW_FORCE_BOON)
-			{
-				G_FreeEntity(ent);
-				return;
-			}
-		}
+		G_FreeEntity( ent );
+		return;
 	}
 
 	if (g_gametype.integer == GT_TOURNAMENT)
 	{
-		if ( ent->item->giType == IT_ARMOR ||
-			ent->item->giType == IT_HEALTH ||
-			(ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_MEDPAC) )
+		if ( ent->item->giType == IT_HOLDABLE)
 		{
 			G_FreeEntity(ent);
 			return;
@@ -2138,7 +2092,7 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, 
+	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
 		ent->r.ownerNum, mask );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );

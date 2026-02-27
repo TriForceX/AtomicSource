@@ -344,7 +344,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 	// Spectators only?
-	if ( ( self->spawnflags & 1 ) && 
+	if ( ( self->spawnflags & 1 ) &&
 		other->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		return;
 	}
@@ -466,7 +466,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	else
 		dflags = 0;
 
-	if (self->damage == -1 && other && other->client)
+	if (self->damage == -1 && other && other->client && !MOD_PLUGIN[other->client->ps.clientNum])
 	{
 		if (other->client->ps.otherKillerTime > level.time)
 		{ //we're as good as dead, so if someone pushed us into this then remember them
@@ -478,7 +478,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		self->timestamp = 0; //do not ignore others
 		G_EntitySound(other, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
 	}
-	else	
+	else
 	{
 		int dmg = self->damage;
 
@@ -493,7 +493,9 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		}
 		else
 		{
-			G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
+			if (!MOD_PLUGIN[other->client->ps.clientNum]) {
+				G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
+			}
 		}
 	}
 }

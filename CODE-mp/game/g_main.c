@@ -46,8 +46,6 @@ vmCvar_t	g_slowmoDuelEnd;
 
 vmCvar_t	g_saberDamageScale;
 
-vmCvar_t	g_useWhileThrowing;
-
 vmCvar_t	g_forceRegenTime;
 vmCvar_t	g_spawnInvulnerability;
 vmCvar_t	g_forcePowerDisable;
@@ -112,15 +110,15 @@ vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_dismember;
 vmCvar_t	g_forceDodge;
-vmCvar_t	g_timeouttospec;
-
 vmCvar_t	g_saberDmgVelocityScale;
 vmCvar_t	g_saberDmgDelay_Idle;
 vmCvar_t	g_saberDmgDelay_Wound;
-
 vmCvar_t	g_saberDebugPrint;
-
 vmCvar_t	g_austrian;
+vmCvar_t	g_cpmotd;
+vmCvar_t	g_clanTag;
+vmCvar_t	g_login;
+vmCvar_t	g_berzerk;
 
 int gDuelist1 = -1;
 int gDuelist2 = -1;
@@ -150,7 +148,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_autoMapCycle, "g_autoMapCycle", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-	
+
 	{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	{ &g_forceBasedTeams, "g_forceBasedTeams", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	{ &g_privateDuel, "g_privateDuel", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
@@ -169,8 +167,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_slowmoDuelEnd, "g_slowmoDuelEnd", "0", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_saberDamageScale, "g_saberDamageScale", "1", CVAR_ARCHIVE, 0, qtrue  },
-
-	{ &g_useWhileThrowing, "g_useWhileThrowing", "1", 0, 0, qtrue  },
 
 	{ &g_forceRegenTime, "g_forceRegenTime", "200", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
@@ -229,6 +225,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
 	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
+	{ &g_cpmotd, "g_cpmotd", "", 0, 0, qfalse },
+	{ &g_clanTag, "g_clanTag", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_login, "g_login", "0", 0, 0, qfalse },
+	{ &g_berzerk, "g_berzerk", "0", 0, 0, qfalse },
 	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
 
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
@@ -257,8 +257,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue  },
-
-	{ &g_timeouttospec, "g_timeouttospec", "70", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_saberDmgVelocityScale, "g_saberDmgVelocityScale", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_saberDmgDelay_Idle, "g_saberDmgDelay_Idle", "350", CVAR_ARCHIVE, 0, qtrue  },
@@ -411,11 +409,11 @@ void G_RemapTeamShaders( void ) {
 	char string[1024];
 	float f = level.time * 0.001;
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
-	AddRemap("textures/ctf2/redteam01", string, f); 
-	AddRemap("textures/ctf2/redteam02", string, f); 
+	AddRemap("textures/ctf2/redteam01", string, f);
+	AddRemap("textures/ctf2/redteam02", string, f);
 	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
-	AddRemap("textures/ctf2/blueteam01", string, f); 
-	AddRemap("textures/ctf2/blueteam02", string, f); 
+	AddRemap("textures/ctf2/blueteam01", string, f);
+	AddRemap("textures/ctf2/blueteam02", string, f);
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 #endif
 }
@@ -473,7 +471,7 @@ void G_UpdateCvars( void ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
 
 				if ( cv->trackChange ) {
-					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", 
+					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"",
 						cv->cvarName, cv->vmCvar->string ) );
 				}
 
@@ -565,7 +563,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// reserve some spots for dead player bodies
@@ -723,7 +721,7 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 		// never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || 
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
 			client->sess.spectatorClient < 0  ) {
 			continue;
 		}
@@ -983,13 +981,14 @@ and team change.
 ============
 */
 void CalculateRanks( void ) {
-	int		i;
-	int		rank;
-	int		score;
-	int		newScore;
-	int		preNumSpec = 0;
-	int		nonSpecIndex = -1;
+	int			i;
+	int			rank;
+	int			score;
+	int			newScore;
+	int			preNumSpec = 0;
+	int			nonSpecIndex = -1;
 	gclient_t	*cl;
+	qboolean 	CLAN;
 
 	preNumSpec = level.numNonSpectatorClients;
 
@@ -999,6 +998,12 @@ void CalculateRanks( void ) {
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
+	CLAN = qfalse;
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if (g_entities[i].client->pers.clan == g_login.integer) {
+			CLAN = qtrue;
+		}
+	}
 	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
 		level.numteamVotingClients[i] = 0;
 	}
@@ -1010,11 +1015,14 @@ void CalculateRanks( void ) {
 			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ) {
 				level.numNonSpectatorClients++;
 				nonSpecIndex = i;
-			
+
 				// decide if this should be auto-followed
 				if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 					level.numPlayingClients++;
-					if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
+					if ( !(g_entities[i].r.svFlags & SVF_BOT) && !CLAN ) {
+						level.numVotingClients++;
+					}
+					if (CLAN && g_entities[i].client->pers.clan == g_login.integer) {
 						level.numVotingClients++;
 						if ( level.clients[i].sess.sessionTeam == TEAM_RED )
 							level.numteamVotingClients[0]++;
@@ -1050,7 +1058,7 @@ void CalculateRanks( void ) {
 	*/
 	//NOTE: for now not doing this either. May use later if appropriate.
 
-	qsort( level.sortedClients, level.numConnectedClients, 
+	qsort( level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
@@ -1066,7 +1074,7 @@ void CalculateRanks( void ) {
 				cl->ps.persistant[PERS_RANK] = 1;
 			}
 		}
-	} else {	
+	} else {
 		rank = -1;
 		score = 0;
 		for ( i = 0;  i < level.numPlayingClients; i++ ) {
@@ -1165,11 +1173,12 @@ If a new client connects, this will be called after the spawn function.
 ========================
 */
 void MoveClientToIntermission( gentity_t *ent ) {
+	int i;
+
 	// take out of follow mode if needed
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent );
 	}
-
 
 	// move to the spot
 	VectorCopy( level.intermission_origin, ent->s.origin );
@@ -1315,7 +1324,7 @@ void DuelResetWinsLosses(void)
 ExitLevel
 
 When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar 
+or moved to a new level based on the "nextmap" cvar
 
 =============
 */
@@ -1334,7 +1343,7 @@ void ExitLevel (void) {
 				level.changemap = NULL;
 				level.intermissiontime = 0;
 			}
-			return;	
+			return;
 		}
 
 		DuelResetWinsLosses();
@@ -1515,12 +1524,12 @@ void CheckIntermissionExit( void ) {
 		{
 			G_LogPrintf("Duel Results:\n");
 			//G_LogPrintf("Duel Time: %d\n", level.time );
-			G_LogPrintf("winner: %s, score: %d, wins/losses: %d/%d\n", 
+			G_LogPrintf("winner: %s, score: %d, wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[0]].pers.netname,
 				level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE],
 				level.clients[level.sortedClients[0]].sess.wins,
 				level.clients[level.sortedClients[0]].sess.losses );
-			G_LogPrintf("loser: %s, score: %d, wins/losses: %d/%d\n", 
+			G_LogPrintf("loser: %s, score: %d, wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[1]].pers.netname,
 				level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE],
 				level.clients[level.sortedClients[1]].sess.wins,
@@ -1546,7 +1555,7 @@ void CheckIntermissionExit( void ) {
 
 			if ( g_austrian.integer )
 			{
-				G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d, kill limit: %d\n", 
+				G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d, kill limit: %d\n",
 					level.clients[level.sortedClients[0]].pers.netname,
 					level.clients[level.sortedClients[0]].sess.wins,
 					level.clients[level.sortedClients[0]].sess.losses,
@@ -1555,7 +1564,7 @@ void CheckIntermissionExit( void ) {
 					level.clients[level.sortedClients[1]].sess.losses,
 					g_fraglimit.integer );
 			}
-			
+
 			if (level.numPlayingClients >= 2)
 			{
 				trap_SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i", level.sortedClients[0], level.sortedClients[1] ) );
@@ -1565,12 +1574,12 @@ void CheckIntermissionExit( void ) {
 				gDuelist2 = level.sortedClients[1];
 			}
 
-			return;	
+			return;
 		}
 
 		if ( g_austrian.integer )
 		{
-			G_LogPrintf("Duel Tournament Winner: %s wins/losses: %d/%d\n", 
+			G_LogPrintf("Duel Tournament Winner: %s wins/losses: %d/%d\n",
 				level.clients[level.sortedClients[0]].pers.netname,
 				level.clients[level.sortedClients[0]].sess.wins,
 				level.clients[level.sortedClients[0]].sess.losses );
@@ -1677,7 +1686,7 @@ qboolean ScoreIsTied( void ) {
 	if ( level.numPlayingClients < 2 ) {
 		return qfalse;
 	}
-	
+
 	if ( g_gametype.integer >= GT_TEAM ) {
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
@@ -1812,7 +1821,7 @@ void CheckExitRules( void ) {
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s.\n\"",
 												cl->pers.netname,
 												G_GetStripEdString("SVINGAME", "HIT_THE_KILL_LIMIT")
-												) 
+												)
 										);
 				return;
 			}
@@ -1883,7 +1892,7 @@ void CheckTournament( void ) {
 				gDuelist2 = level.sortedClients[1];
 				if ( g_austrian.integer )
 				{
-					G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d, kill limit: %d\n", 
+					G_LogPrintf("Duel Initiated: %s %d/%d vs %s %d/%d, kill limit: %d\n",
 						level.clients[level.sortedClients[0]].pers.netname,
 						level.clients[level.sortedClients[0]].sess.wins,
 						level.clients[level.sortedClients[0]].sess.losses,
@@ -2234,7 +2243,7 @@ void G_RunThink (gentity_t *ent) {
 	if (thinktime > level.time) {
 		return;
 	}
-	
+
 	ent->nextthink = 0;
 	if (!ent->think) {
 		G_Error ( "NULL ent->think");
@@ -2400,11 +2409,9 @@ void G_RunFrame( int levelTime ) {
 			continue;
 		}
 
-		if ( i < MAX_CLIENTS ) 
+		if ( i < MAX_CLIENTS )
 		{
-			G_CheckClientTimeouts ( ent );
-			
-			if((!level.intermissiontime)&&!(ent->client->ps.pm_flags&PMF_FOLLOW) && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+			if((!level.intermissiontime)&&!(ent->client->ps.pm_flags&PMF_FOLLOW))
 			{
 				WP_ForcePowersUpdate(ent, &ent->client->pers.cmd );
 				WP_SaberPositionUpdate(ent, &ent->client->pers.cmd);

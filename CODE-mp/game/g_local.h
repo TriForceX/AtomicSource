@@ -9,12 +9,12 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"basejk"
+#define	GAMEVERSION	"^3A^0T^3O^0M^3I^0C"
 
 #define BODY_QUEUE_SIZE		8
 
 #define INFINITE			1000000
-#define Q3_INFINITE			16777216 
+#define Q3_INFINITE			16777216
 
 #define	FRAMETIME			100					// msec
 #define	CARNAGE_REWARD_TIME	3000
@@ -46,7 +46,7 @@ typedef enum {
 typedef enum //# material_e
 {
 	MAT_METAL = 0,
-	MAT_GLASS,		
+	MAT_GLASS,
 	MAT_ELECTRICAL,// (sparks)
 	MAT_ORGANIC,// (not implemented)
 	MAT_BORG,//borg chunks
@@ -57,7 +57,7 @@ typedef enum //# material_e
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
-typedef enum 
+typedef enum
 {
 	HL_NONE = 0,
 	HL_FOOT_RT,
@@ -136,13 +136,13 @@ struct gentity_s {
 	char		*model;
 	char		*model2;
 	int			freetime;			// level.time when the object was freed
-	
+
 	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
 	qboolean	freeAfterEvent;
 	qboolean	unlinkAfterEvent;
 
 	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges
-									// all game items are physicsObjects, 
+									// all game items are physicsObjects,
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
 	int			clipmask;			// brushes with this content value will be collided against
 									// when moving.  items and corpses do not collide against
@@ -318,7 +318,7 @@ typedef struct {
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
-	clientConnected_t	connected;	
+	clientConnected_t	connected;
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
 	qboolean	initialSpawn;		// the first spawn should be at a cool location
@@ -328,9 +328,11 @@ typedef struct {
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
-	int			voteCount;			// to prevent people from constantly calling votes
-	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+	int			VoteTime;
+	char		IP[9];
+	int			chatIgnoreClients[2];
+	int			clan;
 } clientPersistant_t;
 
 
@@ -349,8 +351,6 @@ struct gclient_s {
 	int			saberCycleQueue;
 
 	qboolean	readyToExit;		// wishes to leave the intermission
-
-	qboolean	noclip;
 
 	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
 									// we can't just use pers.lastCommand.time, because
@@ -405,7 +405,7 @@ struct gclient_s {
 	char		*areabits;
 
 	void		*ghoul2;		// In parallel with the centity, there is a corresponding ghoul2 model for players.
-								// This is an instance that is maintained on the server side that is used for 
+								// This is an instance that is maintained on the server side that is used for
 								// determining saber position and per-poly collision
 
 	vec3_t		lastSaberTip;		//position of saber tip last update
@@ -422,6 +422,10 @@ struct gclient_s {
 	int			forcePowerSoundDebounce; //if > level.time, don't do certain sound events again (drain sound, absorb sound, etc)
 
 	qboolean	fjDidJump;
+
+	int			MOTDtime;
+	int			REGEN;
+	int			freeze;
 };
 
 
@@ -696,7 +700,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward );
 
 void G_RunMissile( gentity_t *ent );
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, 
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
 							gentity_t *owner, qboolean altFire);
 void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout );
 void G_ExplodeMissile( gentity_t *ent );
@@ -817,7 +821,6 @@ void ClientCommand( int clientNum );
 //
 // g_active.c
 //
-void G_CheckClientTimeouts	( gentity_t *ent );
 void ClientThink			( int clientNum );
 void ClientEndFrame			( gentity_t *ent );
 void G_RunClient			( gentity_t *ent );
@@ -972,8 +975,6 @@ extern	vmCvar_t	g_slowmoDuelEnd;
 
 extern	vmCvar_t	g_saberDamageScale;
 
-extern	vmCvar_t	g_useWhileThrowing;
-
 extern	vmCvar_t	g_forceRegenTime;
 extern	vmCvar_t	g_spawnInvulnerability;
 extern	vmCvar_t	g_forcePowerDisable;
@@ -1028,15 +1029,15 @@ extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_dismember;
 extern	vmCvar_t	g_forceDodge;
-extern	vmCvar_t	g_timeouttospec;
-
 extern	vmCvar_t	g_saberDmgVelocityScale;
 extern	vmCvar_t	g_saberDmgDelay_Idle;
 extern	vmCvar_t	g_saberDmgDelay_Wound;
-
 extern	vmCvar_t	g_saberDebugPrint;
-
 extern	vmCvar_t	g_austrian;
+extern	vmCvar_t	g_cpmotd;
+extern	vmCvar_t	g_clanTag;
+extern	vmCvar_t	g_login;
+extern	vmCvar_t	g_berzerk;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

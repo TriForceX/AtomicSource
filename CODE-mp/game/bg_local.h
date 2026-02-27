@@ -14,7 +14,7 @@
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have
 // any differences when running on client or server
-typedef struct 
+typedef struct
 {
 	vec3_t		forward, right, up;
 	float		frametime;
@@ -76,8 +76,7 @@ int PM_AnimLength( int index, animNumber_t anim );
 
 int PM_GetSaberStance(void);
 float PM_GroundDistance(void);
-qboolean PM_SomeoneInFront(trace_t *tr);
-saberMoveName_t PM_SaberFlipOverAttackMove(trace_t *tr);
+saberMoveName_t PM_SaberFlipOverAttackMove( void );
 saberMoveName_t PM_SaberJumpAttackMove( void );
 
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );

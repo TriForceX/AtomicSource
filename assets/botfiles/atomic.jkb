@@ -1,0 +1,34 @@
+// Atomic
+
+GeneralBotInfo
+{
+	reflex			0
+	accuracy			5
+	turnspeed			1
+	turnspeed_combat	1
+	maxturn			360
+	perfectaim			1
+	chatability			1
+	chatfrequency		10
+	hatelevel			3
+	camper			0
+	saberspecialist		1
+	forceinfo			7-2-030330000000330333
+}
+
+BotWeaponWeights
+{
+	WP_STUN_BATON			1
+	WP_SABER				20
+	WP_BRYAR_PISTOL		2
+	WP_BLASTER				4
+	WP_DISRUPTOR			5
+	WP_BOWCASTER			6
+	WP_REPEATER			7
+	WP_DEMP2				8
+	WP_FLECHETTE			9
+	WP_ROCKET_LAUNCHER	10
+	WP_THERMAL				3
+	WP_TRIP_MINE			0
+	WP_DET_PACK			0
+}

@@ -47,7 +47,7 @@
 //
 //	0   32   80  112  144   240  320  400   <-- pixel position
 //  bot head bot head score ping time name
-//  
+//
 //  wins/losses are drawn on bot icon now
 
 static qboolean localClient; // true if local client has been displayed
@@ -58,7 +58,7 @@ static qboolean localClient; // true if local client has been displayed
 CG_DrawScoreboard
 =================
 */
-static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat ) 
+static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat )
 {
 	//vec3_t	headAngles;
 	clientInfo_t	*ci;
@@ -78,7 +78,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		Com_Printf( "Bad score->client: %i\n", score->client );
 		return;
 	}
-	
+
 	ci = &cgs.clientinfo[score->client];
 
 	iconx = SB_BOTICON_X + (SB_RATING_WIDTH / 2);
@@ -109,7 +109,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	} else {
 		// draw the wins / losses
 		/*
-		if ( cgs.gametype == GT_TOURNAMENT ) 
+		if ( cgs.gametype == GT_TOURNAMENT )
 		{
 			CG_DrawSmallStringColor( iconx, y + SMALLCHAR_HEIGHT/2, va("%i/%i", ci->wins, ci->losses ), color );
 		}
@@ -118,14 +118,14 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	}
 
 	// highlight your position
-	if ( score->client == cg.snap->ps.clientNum ) 
+	if ( score->client == cg.snap->ps.clientNum )
 	{
 		float	hcolor[4];
 		int		rank;
 
 		localClient = qtrue;
 
-		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
+		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
 			|| cgs.gametype >= GT_TEAM ) {
 			rank = -1;
 		} else {
@@ -171,7 +171,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, va("%i", score->time),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
 
 	// add the "ready" marker for intermission exiting
-	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) ) 
+	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) )
 	{
 		CG_Text_Paint (SB_NAME_X - 64, y + 2, 0.7f * scale, colorWhite, CG_GetStripEdString("INGAMETEXT", "READY"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	}
@@ -182,7 +182,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 CG_TeamScoreboard
 =================
 */
-static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly ) 
+static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly )
 {
 	int		i;
 	score_t	*score;
@@ -262,13 +262,14 @@ qboolean CG_DrawOldScoreboard( void ) {
 		return qfalse;
 	}
 
-	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ||
-		 cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+	cg_drawTimer.integer = 0;
+	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_INTERMISSION ) { //Tox Dont Show Scores When Die
 		fade = 1.0;
 		fadeColor = colorWhite;
+		cg_drawTimer.integer = 1;
 	} else {
 		fadeColor = CG_FadeColor( cg.scoreFadeTime, FADE_TIME );
-		
+
 		if ( !fadeColor ) {
 			// next time scoreboard comes up, don't print killer
 			cg.deferredPlayerLoading = 0;
@@ -320,7 +321,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 	// current rank
 	if ( cgs.gametype < GT_TEAM) {
-		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) 
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR )
 		{
 			char sPlace[256];
 			char sOf[256];
@@ -354,7 +355,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 60;
-		
+
 		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	}
 
@@ -363,12 +364,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, trap_R_RegisterShaderNoMip ( "gfx/menus/menu_buttonback.tga" ) );
 
-	// "NAME", "SCORE", "PING", "TIME" weren't localised, GODDAMMIT!!!!!!!!     
-	//
-	// Unfortunately, since it's so sodding late now and post release I can't enable the localisation code (REM'd) since some of 
-	//	the localised strings don't fit - since no-one's ever seen them to notice this.  Smegging brilliant. Thanks people.
-	//
-	CG_Text_Paint ( SB_NAME_X, y, 1.0f, colorWhite, /*CG_GetStripEdString("MENUS3", "NAME")*/"Name",0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	CG_Text_Paint ( SB_NAME_X, y, 1.0f, colorWhite, "Name", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	if (cgs.gametype == GT_TOURNAMENT)
 	{
 		char sWL[100];
@@ -378,10 +374,10 @@ qboolean CG_DrawOldScoreboard( void ) {
 	}
 	else
 	{
-		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, /*CG_GetStripEdString("MENUS3", "SCORE")*/"Score", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint ( SB_SCORE_X, y, 1.0f, colorWhite, "Score", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	}
-	CG_Text_Paint ( SB_PING_X, y, 1.0f, colorWhite, /*CG_GetStripEdString("MENUS0", "PING")*/"Ping", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
-	CG_Text_Paint ( SB_TIME_X, y, 1.0f, colorWhite, /*CG_GetStripEdString("MENUS3", "TIME")*/"Time", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	CG_Text_Paint ( SB_PING_X, y, 1.0f, colorWhite, "Ping", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	CG_Text_Paint ( SB_TIME_X, y, 1.0f, colorWhite, "Time", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 
 	y = SB_TOP;
 

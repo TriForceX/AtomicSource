@@ -3,6 +3,7 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+#include "g_local.h"
 #include "anims.h"
 #include "../cgame/animtable.h"
 
@@ -551,17 +552,17 @@ qboolean PM_PainAnim( int anim )
 		case BOTH_PAIN6:				//# Sixth take pain anim - from behind
 		case BOTH_PAIN7:				//# Seventh take pain anim - from behind
 		case BOTH_PAIN8:				//# Eigth take pain anim - from behind
-		case BOTH_PAIN9:				//# 
-		case BOTH_PAIN10:			//# 
-		case BOTH_PAIN11:			//# 
-		case BOTH_PAIN12:			//# 
-		case BOTH_PAIN13:			//# 
-		case BOTH_PAIN14:			//# 
-		case BOTH_PAIN15:			//# 
-		case BOTH_PAIN16:			//# 
-		case BOTH_PAIN17:			//# 
-		case BOTH_PAIN18:			//# 
-		case BOTH_PAIN19:			//# 
+		case BOTH_PAIN9:				//#
+		case BOTH_PAIN10:			//#
+		case BOTH_PAIN11:			//#
+		case BOTH_PAIN12:			//#
+		case BOTH_PAIN13:			//#
+		case BOTH_PAIN14:			//#
+		case BOTH_PAIN15:			//#
+		case BOTH_PAIN16:			//#
+		case BOTH_PAIN17:			//#
+		case BOTH_PAIN18:			//#
+		case BOTH_PAIN19:			//#
 		return qtrue;
 		break;
 	}
@@ -660,12 +661,12 @@ qboolean PM_InOnGroundAnim ( int anim )
 	case BOTH_INJURED2:			//# Injured pose 2
 	case BOTH_INJURED3:			//# Injured pose 3
 	case BOTH_INJURED6:			//# Injured pose 6
-	case BOTH_INJURED6ATTACKSTART:	//# Start attack while in injured 6 pose 
+	case BOTH_INJURED6ATTACKSTART:	//# Start attack while in injured 6 pose
 	case BOTH_INJURED6ATTACKSTOP:	//# End attack while in injured 6 pose
 	case BOTH_INJURED6COMBADGE:	//# Hit combadge while in injured 6 pose
 	case BOTH_INJURED6POINT:		//# Chang points to door while in injured state
-	case BOTH_KNOCKDOWN1:		//# 
-	case BOTH_KNOCKDOWN2:		//# 
+	case BOTH_KNOCKDOWN1:		//#
+	case BOTH_KNOCKDOWN2:		//#
 		return qtrue;
 		break;
 	}
@@ -729,6 +730,7 @@ models/players/visor/animation.cfg, etc
 char		BGPAFtext[40000];
 qboolean	BGPAFtextLoaded = qfalse;
 animation_t	bgGlobalAnimations[MAX_TOTALANIMATIONS];
+qboolean	MOD_PLUGIN[MAX_CLIENTS - 1];
 
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
@@ -758,7 +760,7 @@ void SpewDebugStuffToFile()
 }
 #endif
 
-qboolean BG_ParseAnimationFile(const char *filename) 
+qboolean BG_ParseAnimationFile(const char *filename)
 {
 	char		*text_p;
 	int			len;
@@ -775,11 +777,11 @@ qboolean BG_ParseAnimationFile(const char *filename)
 	if (!BGPAFtextLoaded)
 	{ //rww - We are always using the same animation config now. So only load it once.
 		len = trap_FS_FOpenFile( filename, &f, FS_READ );
-		if ( len <= 0 ) 
+		if ( len <= 0 )
 		{
 			return qfalse;
 		}
-		if ( len >= sizeof( BGPAFtext ) - 1 ) 
+		if ( len >= sizeof( BGPAFtext ) - 1 )
 		{
 			//Com_Printf( "File %s too long\n", filename );
 			return qfalse;
@@ -811,11 +813,11 @@ qboolean BG_ParseAnimationFile(const char *filename)
 	}
 
 	// read information for each frame
-	while(1) 
+	while(1)
 	{
 		token = COM_Parse( (const char **)(&text_p) );
 
-		if ( !token || !token[0]) 
+		if ( !token || !token[0])
 		{
 			break;
 		}
@@ -831,33 +833,33 @@ qboolean BG_ParseAnimationFile(const char *filename)
 		}
 
 		token = COM_Parse( (const char **)(&text_p) );
-		if ( !token ) 
+		if ( !token )
 		{
 			break;
 		}
 		bgGlobalAnimations[animNum].firstFrame = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
-		if ( !token ) 
+		if ( !token )
 		{
 			break;
 		}
 		bgGlobalAnimations[animNum].numFrames = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
-		if ( !token ) 
+		if ( !token )
 		{
 			break;
 		}
 		bgGlobalAnimations[animNum].loopFrames = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
-		if ( !token ) 
+		if ( !token )
 		{
 			break;
 		}
 		fps = atof( token );
-		if ( fps == 0 ) 
+		if ( fps == 0 )
 		{
 			fps = 1;//Don't allow divide by zero error
 		}
@@ -876,7 +878,7 @@ qboolean BG_ParseAnimationFile(const char *filename)
 #ifdef _DEBUG
 	//Check the array, and print the ones that have nothing in them.
 	for(i = 0; i < MAX_ANIMATIONS; i++)
-	{	
+	{
 		if (animTable[i].name != NULL)		// This animation reference exists.
 		{
 			if (bgGlobalAnimations[i].firstFrame <= 0 && bgGlobalAnimations[i].numFrames <=0)
@@ -976,10 +978,11 @@ void PM_StartTorsoAnim( int anim ) {
 		return;
 	}
 
-	if (BG_InSaberStandAnim(anim) && pm->ps->weapon == WP_SABER && pm->ps->dualBlade)
+	//cm NOTE: Causes problems with blocking.
+	/*if (BG_InSaberStandAnim(anim) && pm->ps->weapon == WP_SABER && pm->ps->dualBlade)
 	{ //a bit of a hack, but dualblade is cheat-only anyway
 		anim = BOTH_STAND1;
-	}
+	}*/
 
 	pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
 		| anim;
@@ -1020,11 +1023,11 @@ void PM_SetTorsoAnimTimer(int time )
 
 void BG_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed )
 {
-	if ( ( (anim&~ANIM_TOGGLEBIT) >= BOTH_T1_BR__R && 
+	if ( ( (anim&~ANIM_TOGGLEBIT) >= BOTH_T1_BR__R &&
 		(anim&~ANIM_TOGGLEBIT) <= BOTH_T1_BL_TL ) ||
-		( (anim&~ANIM_TOGGLEBIT) >= BOTH_T2_BR__R && 
+		( (anim&~ANIM_TOGGLEBIT) >= BOTH_T2_BR__R &&
 		(anim&~ANIM_TOGGLEBIT) <= BOTH_T2_BL_TL ) ||
-		( (anim&~ANIM_TOGGLEBIT) >= BOTH_T3_BR__R && 
+		( (anim&~ANIM_TOGGLEBIT) >= BOTH_T3_BR__R &&
 		(anim&~ANIM_TOGGLEBIT) <= BOTH_T3_BL_TL ) )
 	{
 		if ( saberAnimLevel == FORCE_LEVEL_1 )
@@ -1043,8 +1046,7 @@ void BG_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed )
 PM_SetAnimFinal
 -------------------------
 */
-void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
-					 int blendTime)		// default blendTime=350
+void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,int blendTime)		// default blendTime=350
 {
 	animation_t *animations = pm->animations;
 
@@ -1070,7 +1072,7 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 		}
 		// or if a more important anim is running
 		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((pm->ps->torsoTimer > 0)||(pm->ps->torsoTimer == -1)) )
-		{	
+		{
 			goto setAnimLegs;
 		}
 
@@ -1082,7 +1084,7 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
-				
+
 				dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
 				speedDif = dur - (dur * editAnimSpeed);
 				dur += speedDif;
@@ -1100,7 +1102,7 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 				pm->ps->torsoTimer = ((animations[anim].numFrames ) * fabs(animations[anim].frameLerp));
 			}
 
-			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
+			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE) && !MOD_PLUGIN[pm->ps->clientNum])
 			{
 				pm->ps->torsoTimer /= 1.7;
 			}
@@ -1118,7 +1120,7 @@ setAnimLegs:
 		}
 		// or if a more important anim is running
 		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((pm->ps->legsTimer > 0)||(pm->ps->legsTimer == -1)) )
-		{	
+		{
 			goto setAnimDone;
 		}
 
@@ -1130,7 +1132,7 @@ setAnimLegs:
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
-				
+
 				dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
 				speedDif = dur - (dur * editAnimSpeed);
 				dur += speedDif;
@@ -1148,7 +1150,7 @@ setAnimLegs:
 				pm->ps->legsTimer = ((animations[anim].numFrames ) * fabs(animations[anim].frameLerp));
 			}
 
-			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
+			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE) && !MOD_PLUGIN[pm->ps->clientNum])
 			{
 				pm->ps->legsTimer /= 1.3;
 			}
@@ -1167,8 +1169,8 @@ setAnimDone:
 
 // Imported from single-player, this function is mainly intended to make porting from SP easier.
 void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
-{	
-	assert(	bgGlobalAnimations[anim].firstFrame != 0 || 
+{
+	assert(	bgGlobalAnimations[anim].firstFrame != 0 ||
 			bgGlobalAnimations[anim].numFrames != 0);
 
 	if (BG_InSpecialJump(anim))

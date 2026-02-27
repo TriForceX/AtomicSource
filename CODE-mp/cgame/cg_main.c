@@ -19,7 +19,7 @@ void CG_InitItems(void);
 Ghoul2 Insert End
 */
 
-vec4_t colorTable[CT_MAX] = 
+vec4_t colorTable[CT_MAX] =
 {
 {0, 0, 0, 0},			// CT_NONE
 {0, 0, 0, 1},			// CT_BLACK
@@ -81,7 +81,7 @@ vec4_t colorTable[CT_MAX] =
 {0.429f, 0.171f, 0.113f, 1},	// CT_VDKRED1
 {.25f, 0, 0, 1},					// CT_VDKRED
 {.70f, 0, 0, 1},					// CT_DKRED
-	
+
 {0.717f, 0.902f, 1.0f,   1},		// CT_VLTAQUA
 {0.574f, 0.722f, 0.804f, 1},		// CT_LTAQUA
 {0.287f, 0.361f, 0.402f, 1},		// CT_DKAQUA
@@ -456,6 +456,7 @@ vmCvar_t 	cg_forceModel;
 vmCvar_t	cg_paused;
 vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
+vmCvar_t	cg_login;
 vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
@@ -538,9 +539,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
 	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
 	{ &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
-	{ &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
-	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
-	{ &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
+	{ &cg_gun_x, "cg_gunX", "2", CVAR_ARCHIVE },
+	{ &cg_gun_y, "cg_gunY", "0", CVAR_ARCHIVE },
+	{ &cg_gun_z, "cg_gunZ", "0", CVAR_ARCHIVE },
 	{ &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
 	{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
 	{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
@@ -588,20 +589,21 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_dismember, "cg_dismember", "0", CVAR_ARCHIVE },
 
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0 },
-	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", CVAR_CHEAT },
-	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
-	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", CVAR_CHEAT },
-	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", CVAR_CHEAT },
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0 },
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_CHEAT },
-	
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_CHEAT },
-	{ &cg_thirdPersonAlpha,	"cg_thirdPersonAlpha",	"1.0", CVAR_CHEAT },
+	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", CVAR_ARCHIVE },
+	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_ARCHIVE },
+	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", CVAR_ARCHIVE },
+	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", CVAR_ARCHIVE },
+	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", CVAR_ARCHIVE },
+	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_ARCHIVE },
+
+	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_ARCHIVE },
+	{ &cg_thirdPersonAlpha,	"cg_thirdPersonAlpha",	"1.0", CVAR_ARCHIVE },
 
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE  },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
+	{ &cg_login, "cg_login", "1", CVAR_USERINFO | CVAR_ARCHIVE },
 	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
@@ -701,7 +703,7 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "ui_about_botminplayers",	"0", CVAR_ROM|CVAR_INTERNAL );
 }
 
-/*																																			
+/*
 ===================
 CG_ForceModelChange
 ===================
@@ -876,7 +878,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		len = s-start;
 		if (len >= MAX_QPATH || len < 5) {
-			CG_Error( "PrecacheItem: %s has bad precache string", 
+			CG_Error( "PrecacheItem: %s has bad precache string",
 				item->classname);
 			return;
 		}
@@ -942,7 +944,7 @@ static void CG_RegisterSounds( void ) {
 
 	trap_R_RegisterShader( "powerups/ysalimarishell" );
 	trap_R_RegisterShader("gfx/effects/saberDamageGlow" );
-	
+
 	trap_R_RegisterShader( "gfx/effects/forcePush" );
 
 	trap_R_RegisterShader( "gfx/misc/red_dmgshield" );
@@ -1178,7 +1180,7 @@ static void CG_RegisterSounds( void ) {
 	// FIXME: only needed with item
 	cgs.media.deploySeeker = trap_S_RegisterSound ("sound/chars/seeker/misc/hiss");
 	cgs.media.medkitSound = trap_S_RegisterSound ("sound/items/use_bacta.wav");
-	
+
 	cgs.media.winnerSound = trap_S_RegisterSound( "sound/chars/mothma/misc/40MOM006" );
 	cgs.media.loserSound = trap_S_RegisterSound( "sound/chars/mothma/misc/40MOM010" );
 }
@@ -1186,7 +1188,7 @@ static void CG_RegisterSounds( void ) {
 
 //-------------------------------------
 // CG_RegisterEffects
-// 
+//
 // Handles precaching all effect files
 //	and any shader, model, or sound
 //	files an effect may use.
@@ -1196,11 +1198,11 @@ static void CG_RegisterEffects( void )
 	const char	*effectName;
 	int			i;
 
-	for ( i = 1 ; i < MAX_FX ; i++ ) 
+	for ( i = 1 ; i < MAX_FX ; i++ )
 	{
 		effectName = CG_ConfigString( CS_EFFECTS + i );
 
-		if ( !effectName[0] ) 
+		if ( !effectName[0] )
 		{
 			break;
 		}
@@ -1611,7 +1613,7 @@ const char *CG_GetStripEdString(char *refSection, char *refName)
 }
 
 
-/*																																			
+/*
 =======================
 CG_BuildSpectatorString
 
@@ -1633,7 +1635,7 @@ void CG_BuildSpectatorString(void) {
 }
 
 
-/*																																			
+/*
 ===================
 CG_RegisterClients
 ===================
@@ -1732,7 +1734,7 @@ qboolean CG_Asset_Parse(int handle) {
 	if (Q_stricmp(token.string, "{") != 0) {
 		return qfalse;
 	}
-    
+
 	while ( 1 ) {
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
@@ -1932,7 +1934,7 @@ qboolean CG_Load_Menu(char **p) {
 	while ( 1 ) {
 
 		token = COM_ParseExt((const char **)p, qtrue);
-    
+
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
 		}
@@ -1941,7 +1943,7 @@ qboolean CG_Load_Menu(char **p) {
 			return qfalse;
 		}
 
-		CG_ParseMenu(token); 
+		CG_ParseMenu(token);
 	}
 	return qfalse;
 }
@@ -2059,7 +2061,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 					item = BG_FindItemForPowerup( PW_BLUEFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
 				} else {
-					/*	
+					/*
 					if ( info->botSkill > 0 && info->botSkill <= 5 ) {
 						*handle1 = cgs.media.botSkillShaders[ info->botSkill - 1 ];
 					} else if ( info->handicap < 100 ) {
@@ -2105,7 +2107,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 			case 6:
 				if ( sp->ping == -1 ) {
 					return "connecting";
-				} 
+				}
 				return va("%4i", sp->ping);
 			break;
 		}
@@ -2194,7 +2196,7 @@ CG_LoadHudMenu();
 
 =================
 */
-void CG_LoadHudMenu() 
+void CG_LoadHudMenu()
 {
 	cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
 	cgDC.setColor = &trap_R_SetColor;
@@ -2206,7 +2208,7 @@ void CG_LoadHudMenu()
 	cgDC.registerModel = &trap_R_RegisterModel;
 	cgDC.modelBounds = &trap_R_ModelBounds;
 	cgDC.fillRect = &CG_FillRect;
-	cgDC.drawRect = &CG_DrawRect;   
+	cgDC.drawRect = &CG_DrawRect;
 	cgDC.drawSides = &CG_DrawSides;
 	cgDC.drawTopBottom = &CG_DrawTopBottom;
 	cgDC.clearScene = &trap_R_ClearScene;
@@ -2242,8 +2244,8 @@ void CG_LoadHudMenu()
 	//cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
 	//cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
 	//cgDC.executeText = &trap_Cmd_ExecuteText;
-	cgDC.Error = &Com_Error; 
-	cgDC.Print = &Com_Printf; 
+	cgDC.Error = &Com_Error;
+	cgDC.Print = &Com_Printf;
 	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
 	//cgDC.Pause = &CG_Pause;
 	cgDC.registerSound = &trap_S_RegisterSound;
@@ -2253,7 +2255,7 @@ void CG_LoadHudMenu()
 	cgDC.stopCinematic = &CG_StopCinematic;
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-	
+
 	Init_Display(&cgDC);
 
 	Menu_Reset();
@@ -2300,7 +2302,7 @@ void CG_Init_CG(void)
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
 void CG_Init_CGents(void)
 {
-	
+
 	memset(&cg_entities, 0, sizeof(cg_entities));
 }
 
@@ -2314,7 +2316,7 @@ void CG_InitItems(void)
 Ghoul2 Insert End
 */
 
-forceTicPos_t forceTicPos[] = 
+forceTicPos_t forceTicPos[] =
 {
 
  11,  41,  20,  10,	"gfx/hud/force_tick1", 0,		// Left Top
@@ -2334,7 +2336,7 @@ forceTicPos_t forceTicPos[] =
  69,  41, -20,  10,	"gfx/hud/force_tick1", 0,		// Right top
 };
 
-forceTicPos_t ammoTicPos[] = 
+forceTicPos_t ammoTicPos[] =
 {
  12,  34,  10,  10, "gfx/hud/ammo_tick7", 0, 	// Bottom
  13,  28,  10,  10, "gfx/hud/ammo_tick6", 0,
@@ -2405,7 +2407,7 @@ Ghoul2 Insert End
 
 	cg.itemSelect = -1;
 	cg.forceSelect = -1;
-	
+
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap_R_RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
 	cgs.media.whiteShader		= trap_R_RegisterShader( "white" );
@@ -2455,7 +2457,7 @@ Ghoul2 Insert End
 	cgs.media.weaponIcons[WP_DET_PACK] = trap_R_RegisterShaderNoMip("gfx/hud/w_icon_detpack");
 	cgs.media.weaponIcons_NA[WP_DET_PACK] = trap_R_RegisterShaderNoMip("gfx/hud/w_icon_detpack_na");
 
-	// HUD artwork for cycling inventory,weapons and force powers 
+	// HUD artwork for cycling inventory,weapons and force powers
 	cgs.media.weaponIconBackground		= trap_R_RegisterShaderNoMip( "gfx/hud/background");
 	cgs.media.weaponProngsOn			= trap_R_RegisterShaderNoMip( "gfx/hud/prong_on_w");
 	cgs.media.weaponProngsOff			= trap_R_RegisterShaderNoMip( "gfx/hud/prong_off");
@@ -2501,7 +2503,7 @@ Ghoul2 Insert End
 	cgs.media.HUDHealth			= trap_R_RegisterShaderNoMip( "gfx/hud/health" );
 	cgs.media.HUDHealthTic		= trap_R_RegisterShaderNoMip( "gfx/hud/health_tic" );
 	cgs.media.HUDArmorTic		= trap_R_RegisterShaderNoMip( "gfx/hud/armor_tic" );
-	
+
 	cgs.media.HUDLeftStatic		= cgs.media.HUDLeftFrame;//trap_R_RegisterShaderNoMip( "gfx/hud/static_test" );
 	cgs.media.HUDLeft			= cgs.media.HUDInnerLeft;//trap_R_RegisterShaderNoMip( "gfx/hud/hudleft" );
 
@@ -2608,7 +2610,7 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void CG_Shutdown( void ) 
+void CG_Shutdown( void )
 {
 	trap_FX_FreeSystem();
 	trap_ROFF_Clean();
@@ -2625,7 +2627,7 @@ void CG_Shutdown( void )
 CG_NextForcePower_f
 ===============
 */
-void CG_NextForcePower_f( void ) 
+void CG_NextForcePower_f( void )
 {
 	if ( !cg.snap )
 	{
@@ -2657,7 +2659,7 @@ void CG_NextForcePower_f( void )
 CG_PrevForcePower_f
 ===============
 */
-void CG_PrevForcePower_f( void ) 
+void CG_PrevForcePower_f( void )
 {
 	if ( !cg.snap )
 	{

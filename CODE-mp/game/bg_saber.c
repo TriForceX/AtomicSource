@@ -1,6 +1,7 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+#include "g_local.h"
 
 int PM_irand_timesync(int val1, int val2)
 {
@@ -138,7 +139,7 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	{"R2L St",		BOTH_S1_S1__R,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_A_R2L,		LS_A_R2L,		200	},	// LS_S_R2L
 	{"TR2BL St",	BOTH_S1_S1_TR,		Q_R,	Q_TR,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_A_TR2BL,		LS_A_TR2BL,		200	},	// LS_S_TR2BL
 	{"T2B St",		BOTH_S1_S1_T_,		Q_R,	Q_T,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_A_T2B,		LS_A_T2B,		200	},	// LS_S_T2B
-	
+
 	//returns
 	{"TL2BR Ret",	BOTH_R1_BR_S1,		Q_BR,	Q_R,	AFLAG_FINISH,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_R_TL2BR
 	{"L2R Ret",		BOTH_R1__R_S1,		Q_R,	Q_R,	AFLAG_FINISH,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_R_L2R
@@ -193,23 +194,23 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	{"BL2L Trans",	BOTH_T1_BL__L,		Q_BL,	Q_L,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_R2L,		LS_A_L2R,		150	},	//# Fast arc bottom left to left
 
 	//Bounces
-	{"Bounce BR",	BOTH_B1_BR___,		Q_BR,	Q_BR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TL2BR,		LS_T1_BR_TR,	150	},	
-	{"Bounce R",	BOTH_B1__R___,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_L2R,		LS_T1__R__L,	150	},	
-	{"Bounce TR",	BOTH_B1_TR___,		Q_TR,	Q_TR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_TR_TL,	150	},	
-	{"Bounce T",	BOTH_B1_T____,		Q_T,	Q_T,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},	
-	{"Bounce TL",	BOTH_B1_TL___,		Q_TL,	Q_TL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BR2TL,		LS_T1_TL_TR,	150	},	
-	{"Bounce L",	BOTH_B1__L___,		Q_L,	Q_L,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_R2L,		LS_T1__L__R,	150	},	
-	{"Bounce BL",	BOTH_B1_BL___,		Q_BL,	Q_BL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TR2BL,		LS_T1_BL_TR,	150	},	
+	{"Bounce BR",	BOTH_B1_BR___,		Q_BR,	Q_BR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TL2BR,		LS_T1_BR_TR,	150	},
+	{"Bounce R",	BOTH_B1__R___,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_L2R,		LS_T1__R__L,	150	},
+	{"Bounce TR",	BOTH_B1_TR___,		Q_TR,	Q_TR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_TR_TL,	150	},
+	{"Bounce T",	BOTH_B1_T____,		Q_T,	Q_T,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},
+	{"Bounce TL",	BOTH_B1_TL___,		Q_TL,	Q_TL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BR2TL,		LS_T1_TL_TR,	150	},
+	{"Bounce L",	BOTH_B1__L___,		Q_L,	Q_L,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_R2L,		LS_T1__L__R,	150	},
+	{"Bounce BL",	BOTH_B1_BL___,		Q_BL,	Q_BL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TR2BL,		LS_T1_BL_TR,	150	},
 
 	//Deflected attacks (like bounces, but slide off enemy saber, not straight back)
-	{"Deflect BR",	BOTH_D1_BR___,		Q_BR,	Q_BR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TL2BR,		LS_T1_BR_TR,	150	},	
-	{"Deflect R",	BOTH_D1__R___,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_L2R,		LS_T1__R__L,	150	},	
-	{"Deflect TR",	BOTH_D1_TR___,		Q_TR,	Q_TR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_TR_TL,	150	},	
-	{"Deflect T",	BOTH_B1_T____,		Q_T,	Q_T,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},	
-	{"Deflect TL",	BOTH_D1_TL___,		Q_TL,	Q_TL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BR2TL,		LS_T1_TL_TR,	150	},	
-	{"Deflect L",	BOTH_D1__L___,		Q_L,	Q_L,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_R2L,		LS_T1__L__R,	150	},	
-	{"Deflect BL",	BOTH_D1_BL___,		Q_BL,	Q_BL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TR2BL,		LS_T1_BL_TR,	150	},	
-	{"Deflect B",	BOTH_D1_B____,		Q_B,	Q_B,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},	
+	{"Deflect BR",	BOTH_D1_BR___,		Q_BR,	Q_BR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TL2BR,		LS_T1_BR_TR,	150	},
+	{"Deflect R",	BOTH_D1__R___,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_L2R,		LS_T1__R__L,	150	},
+	{"Deflect TR",	BOTH_D1_TR___,		Q_TR,	Q_TR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_TR_TL,	150	},
+	{"Deflect T",	BOTH_B1_T____,		Q_T,	Q_T,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},
+	{"Deflect TL",	BOTH_D1_TL___,		Q_TL,	Q_TL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BR2TL,		LS_T1_TL_TR,	150	},
+	{"Deflect L",	BOTH_D1__L___,		Q_L,	Q_L,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_R2L,		LS_T1__L__R,	150	},
+	{"Deflect BL",	BOTH_D1_BL___,		Q_BL,	Q_BL,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_TR2BL,		LS_T1_BL_TR,	150	},
+	{"Deflect B",	BOTH_D1_B____,		Q_B,	Q_B,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_R_BL2TR,		LS_T1_T__BL,	150	},
 
 	//Reflected attacks
 	{"Reflected BR",BOTH_V1_BR_S1,		Q_BR,	Q_BR,	AFLAG_ACTIVE,	100,	BLK_NO,	LS_READY,		LS_READY,	150	},//	LS_V1_BR
@@ -252,7 +253,7 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 };
 
 
-int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] = 
+int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
 {
 	LS_NONE,	//Can't transition to same pos!
 	LS_T1_BR__R,//40
@@ -583,7 +584,7 @@ qboolean PM_SaberInTransition( int move )
 	return qfalse;
 }
 
-int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] = 
+int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] =
 {
 	0,//Q_BR,Q_BR,
 	45,//Q_BR,Q_R,
@@ -698,7 +699,7 @@ qboolean PM_SaberKataDone(int curmove, int newmove)
 			}
 		}
 	}
-	else 
+	else
 	{//Perhaps have chainAngle influence fast and medium chains as well? For now, just do level 3.
 		if (newmove == LS_A_TL2BR ||
 			newmove == LS_A_L2R ||
@@ -912,7 +913,7 @@ void PM_SaberLocked( void )
 				pm->ps->saberLockAdvance = qfalse;
 
 				anim = &pm->animations[pm->ps->torsoAnim&~ANIM_TOGGLEBIT];
-	
+
 				currentFrame = pm->ps->saberLockFrame;
 
 				strength = pm->ps->fd.forcePowerLevel[FP_SABERATTACK]+1;
@@ -1021,80 +1022,8 @@ int PM_BrokenParryForParry( int move )
 	return LS_NONE;
 }
 
-#define BACK_STAB_DISTANCE 128
-
-qboolean PM_CanBackstab(void)
+saberMoveName_t PM_SaberFlipOverAttackMove( void )
 {
-	trace_t tr;
-	vec3_t flatAng;
-	vec3_t fwd, back;
-	vec3_t trmins = {-15, -15, -8};
-	vec3_t trmaxs = {15, 15, 8};
-
-	VectorCopy(pm->ps->viewangles, flatAng);
-	flatAng[PITCH] = 0;
-
-	AngleVectors(flatAng, fwd, 0, 0);
-
-	back[0] = pm->ps->origin[0] - fwd[0]*BACK_STAB_DISTANCE;
-	back[1] = pm->ps->origin[1] - fwd[1]*BACK_STAB_DISTANCE;
-	back[2] = pm->ps->origin[2] - fwd[2]*BACK_STAB_DISTANCE;
-
-	pm->trace(&tr, pm->ps->origin, trmins, trmaxs, back, pm->ps->clientNum, MASK_PLAYERSOLID);
-
-	if (tr.fraction != 1.0 && tr.entityNum >= 0 && tr.entityNum < MAX_CLIENTS)
-	{ //We don't have real entity access here so we can't do an indepth check. But if it's a client and it's behind us, I guess that's reason enough to stab backward
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
-saberMoveName_t PM_SaberFlipOverAttackMove(trace_t *tr)
-{
-	vec3_t fwdAngles, jumpFwd;
-	float zDiff = 0;
-	playerState_t *psData;
-
-	VectorCopy( pm->ps->viewangles, fwdAngles );
-	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
-	AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
-	VectorScale( jumpFwd, 50, pm->ps->velocity );
-	pm->ps->velocity[2] = 400;
-
-	psData = pm->bgClients[tr->entityNum];
-
-	//go higher for enemies higher than you, lower for those lower than you
-	if (psData)
-	{
-		zDiff = psData->origin[2] - pm->ps->origin[2];
-	}
-	else
-	{
-		zDiff = 0;
-	}
-	pm->ps->velocity[2] += (zDiff)*1.5f;
-
-	//clamp to decent-looking values
-	if ( zDiff <= 0 && pm->ps->velocity[2] < 200 )
-	{//if we're on same level, don't let me jump so low, I clip into the ground
-		pm->ps->velocity[2] = 200;
-	}
-	else if ( pm->ps->velocity[2] < 100 )
-	{
-		pm->ps->velocity[2] = 100;
-	}
-	else if ( pm->ps->velocity[2] > 400 )
-	{
-		pm->ps->velocity[2] = 400;
-	}
-
-	PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
-
-	PM_AddEvent( EV_JUMP );
-	pm->ps->fd.forceJumpSound = 1;
-	pm->cmd.upmove = 0;
-
 	if ( PM_irand_timesync( 0, 1 ) )
 	{
 		return LS_A_FLIP_STAB;
@@ -1103,34 +1032,6 @@ saberMoveName_t PM_SaberFlipOverAttackMove(trace_t *tr)
 	{
 		return LS_A_FLIP_SLASH;
 	}
-}
-
-#define FLIPHACK_DISTANCE 200
-
-qboolean PM_SomeoneInFront(trace_t *tr)
-{ //Also a very simplified version of the sp counterpart
-	vec3_t flatAng;
-	vec3_t fwd, back;
-	vec3_t trmins = {-15, -15, -8};
-	vec3_t trmaxs = {15, 15, 8};
-
-	VectorCopy(pm->ps->viewangles, flatAng);
-	flatAng[PITCH] = 0;
-
-	AngleVectors(flatAng, fwd, 0, 0);
-
-	back[0] = pm->ps->origin[0] + fwd[0]*FLIPHACK_DISTANCE;
-	back[1] = pm->ps->origin[1] + fwd[1]*FLIPHACK_DISTANCE;
-	back[2] = pm->ps->origin[2] + fwd[2]*FLIPHACK_DISTANCE;
-
-	pm->trace(tr, pm->ps->origin, trmins, trmaxs, back, pm->ps->clientNum, MASK_PLAYERSOLID);
-
-	if (tr->fraction != 1.0 && tr->entityNum >= 0 && tr->entityNum < MAX_CLIENTS)
-	{
-		return qtrue;
-	}
-
-	return qfalse;
 }
 
 saberMoveName_t PM_SaberLungeAttackMove( void )
@@ -1221,16 +1122,12 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{//forward= T2B slash
 			if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 &&
 				pm->ps->velocity[2] > 100 &&
-				PM_GroundDistance() < 32 &&
+				PM_GroundDistance() > 0 &&
 				!BG_InSpecialJump(pm->ps->legsAnim) &&
 				!BG_SaberInSpecialAttack(pm->ps->torsoAnim))
 			{ //FLIP AND DOWNWARD ATTACK
 				trace_t tr;
-
-				if (PM_SomeoneInFront(&tr))
-				{
-					newmove = PM_SaberFlipOverAttackMove(&tr);
-				}
+				newmove = PM_SaberFlipOverAttackMove();
 			}
 			else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1 &&
 				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
@@ -1247,7 +1144,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		}
 		else if ( pm->cmd.forwardmove < 0 )
 		{//backward= T2B slash//B2T uppercut?
-			if (PM_CanBackstab() && !BG_SaberInSpecialAttack(pm->ps->torsoAnim))
+			if (!BG_SaberInSpecialAttack(pm->ps->torsoAnim))
 			{ //BACKSTAB (attack varies by level)
 				if (pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_2)
 				{//medium and higher attacks
@@ -1380,6 +1277,9 @@ void PM_WeaponLightsaber(void)
 		{
 			if (pm->ps->duelTime < pm->cmd.serverTime)
 			{
+				if (pm->ps->eFlags & EF_JETPACK) {
+					pm->ps->eFlags = pm->ps->eFlags & EF_JETPACK ? pm->ps->eFlags & ~EF_JETPACK : pm->ps->eFlags | EF_JETPACK;
+				}
 				pm->ps->saberHolstered = qfalse;
 				PM_AddEvent(EV_SABER_UNHOLSTER);
 			}
@@ -1410,9 +1310,9 @@ void PM_WeaponLightsaber(void)
 
 		pm->ps->saberInFlight = qtrue;
 	}
-	
-	if ( pm->ps->saberInFlight )
-	{//guiding saber
+
+	//TOX: Saber Throw Lose Fix
+	if (pm->ps->saberInFlight && pm->cmd.buttons & BUTTON_ALT_ATTACK) {
 		PM_SetAnim(SETANIM_TORSO, BOTH_SABERPULL, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100);
 		pm->ps->torsoTimer = 1;
 		return;
@@ -1525,7 +1425,7 @@ void PM_WeaponLightsaber(void)
 					{//transition to a new attack
 						int newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
 						while ( newQuad == saberMoveData[pm->ps->saberMove].startQuad )
-						{//player is still in same attack quad, don't repeat that attack because it looks bad, 
+						{//player is still in same attack quad, don't repeat that attack because it looks bad,
 							//FIXME: try to pick one that might look cool?
 							//newQuad = Q_irand( Q_BR, Q_BL );
 							newQuad = PM_irand_timesync( Q_BR, Q_BL );
@@ -1616,7 +1516,7 @@ weapChecks:
 		}
 	}
 
-	if ( pm->ps->weaponTime > 0 ) 
+	if ( pm->ps->weaponTime > 0 )
 	{
 		return;
 	}
@@ -1635,7 +1535,7 @@ weapChecks:
 	// WEAPON_RAISING
 	// *********************************************************
 
-	if ( pm->ps->weaponstate == WEAPON_RAISING ) 
+	if ( pm->ps->weaponstate == WEAPON_RAISING )
 	{//Just selected the weapon
 		pm->ps->weaponstate = WEAPON_IDLE;
 		if((pm->ps->legsAnim & ~ANIM_TOGGLEBIT) == BOTH_WALK1 )
@@ -1800,7 +1700,7 @@ weapChecks:
 					//Now get the proper transition move
 					newmove = PM_SaberAnimTransitionAnim( curmove, newmove );
 
-					assert(	bgGlobalAnimations[saberMoveData[newmove].animToUse].firstFrame != 0 || 
+					assert(	bgGlobalAnimations[saberMoveData[newmove].animToUse].firstFrame != 0 ||
 							bgGlobalAnimations[saberMoveData[newmove].animToUse].numFrames != 0);
 
 					anim = saberMoveData[newmove].animToUse;
@@ -1818,7 +1718,7 @@ weapChecks:
 				{//not moving at all, so set the anim on entire body
 					both = qtrue;
 				}
-			
+
 			}
 
 			if ( anim == -1)
@@ -1877,7 +1777,7 @@ weapChecks:
 	pm->ps->saberAttackSequence = pm->ps->torsoAnim;
 	if ( !addTime )
 	{
-		addTime = weaponData[pm->ps->weapon].fireTime;
+		addTime = weaponData[pm->ps->weapon].fireTime/4;
 	}
 	pm->ps->weaponTime = addTime;
 }
@@ -1887,7 +1787,7 @@ void PM_SetSaberMove(short newMove)
 	unsigned int setflags = saberMoveData[newMove].animSetFlags;
 	int	anim = saberMoveData[newMove].animToUse;
 	int parts = SETANIM_TORSO;
-	
+
 	if ( newMove == LS_READY || newMove == LS_A_FLIP_STAB || newMove == LS_A_FLIP_SLASH )
 	{//finished with a kata (or in a special move) reset attack counter
 		pm->ps->saberAttackChainCount = 0;
@@ -1904,7 +1804,7 @@ void PM_SetSaberMove(short newMove)
 
 	if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
 		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove))
-	{//readies, parries and reflections have only 1 level 
+	{//readies, parries and reflections have only 1 level
 		//increment the anim to the next level of saber anims
 		anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
 	}
@@ -1916,8 +1816,8 @@ void PM_SetSaberMove(short newMove)
 	}
 
 	//saber torso anims should always be highest priority (4/12/02 - for special anims only)
-	if ( newMove == LS_A_LUNGE 
-		|| newMove == LS_A_JUMP_T__B_ 
+	if ( newMove == LS_A_LUNGE
+		|| newMove == LS_A_JUMP_T__B_
 		|| newMove == LS_A_BACKSTAB
 		|| newMove == LS_A_BACK
 		|| newMove == LS_A_BACK_CR
@@ -1950,8 +1850,8 @@ void PM_SetSaberMove(short newMove)
 		parts = SETANIM_TORSO;
 	}
 
-	if ( newMove == LS_A_LUNGE 
-		|| newMove == LS_A_JUMP_T__B_ 
+	if ( newMove == LS_A_LUNGE
+		|| newMove == LS_A_JUMP_T__B_
 		|| newMove == LS_A_BACKSTAB
 		|| newMove == LS_A_BACK
 		|| newMove == LS_A_BACK_CR
@@ -1966,9 +1866,9 @@ void PM_SetSaberMove(short newMove)
 	}
 	else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove))
 	{//not trying to run, duck or jump
-		if ( !BG_FlippingAnim( pm->ps->legsAnim ) && 
-			!BG_InRoll( pm->ps, pm->ps->legsAnim ) && 
-			!PM_InKnockDown( pm->ps ) && 
+		if ( !BG_FlippingAnim( pm->ps->legsAnim ) &&
+			!BG_InRoll( pm->ps, pm->ps->legsAnim ) &&
+			!PM_InKnockDown( pm->ps ) &&
 			!PM_JumpingAnim( pm->ps->legsAnim ) &&
 			!BG_InSpecialJump( pm->ps->legsAnim ) &&
 			anim != PM_GetSaberStance() &&

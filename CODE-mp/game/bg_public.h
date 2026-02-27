@@ -89,7 +89,7 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 #define CS_LOCATIONS			(CS_CHARSKINS+MAX_CHARSKINS)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 
+#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
 #define CS_EFFECTS				(CS_PARTICLES+MAX_LOCATIONS)
 #define	CS_LIGHT_STYLES			(CS_EFFECTS + MAX_FX)
 #define CS_STRING_PACKAGES		(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
@@ -172,6 +172,8 @@ typedef struct animation_s {
 
 extern qboolean			BGPAFtextLoaded;
 extern animation_t		bgGlobalAnimations[MAX_TOTALANIMATIONS];
+extern qboolean			MOD_PLUGIN[MAX_CLIENTS - 1];
+extern qboolean			LAUNCH[MAX_CLIENTS - 1];
 
 // flip the togglebit every time an animation
 // changes so a restart of the same anim can be detected
@@ -181,7 +183,7 @@ extern animation_t		bgGlobalAnimations[MAX_TOTALANIMATIONS];
 typedef enum {
 	PM_NORMAL,		// can accelerate and turn
 	PM_FLOAT,		// float with no gravity in general direction of velocity (intended for gripping)
-	PM_NOCLIP,		// noclip movement
+	PM_JETPACK,		// jetpack movement, The Eternal
 	PM_SPECTATOR,	// still run into walls
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control
@@ -190,7 +192,7 @@ typedef enum {
 } pmtype_t;
 
 typedef enum {
-	WEAPON_READY, 
+	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
 	WEAPON_FIRING,
@@ -305,7 +307,7 @@ typedef enum {
 	STAT_HOLDABLE_ITEMS,
 	STAT_PERSISTANT_POWERUP,
 	STAT_WEAPONS,					// 16 bit fields
-	STAT_ARMOR,				
+	STAT_ARMOR,
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
@@ -379,7 +381,8 @@ typedef enum {
 #define EF_DISINTEGRATION	0x02000000		// being disintegrated by the disruptor
 #define EF_INVULNERABLE		0x04000000		// just spawned in or whatever, so is protected
 
-
+#define EF_JETPACK			0x08000000		// Enabled jetpack, The Eternal
+#define EF_JETPACK_THRUST	0x10000000		// Thrusting with the jetpack, The Eternal
 
 typedef enum {
 	EFFECT_NONE = 0,
@@ -627,8 +630,8 @@ typedef enum {
 	EV_TAUNT_GUARDBASE,
 	EV_TAUNT_PATROL,
 
-	EV_BODY_QUEUE_COPY,
-	
+	EV_BODY_QUEUE_COPY
+
 } entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 
 
@@ -666,7 +669,7 @@ typedef enum {
 //team task
 typedef enum {
 	TEAMTASK_NONE,
-	TEAMTASK_OFFENSE, 
+	TEAMTASK_OFFENSE,
 	TEAMTASK_DEFENSE,
 	TEAMTASK_PATROL,
 	TEAMTASK_FOLLOW,
@@ -1051,7 +1054,6 @@ qboolean BG_OutOfMemory ( void );
 
 extern int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim[WP_NUM_WEAPONS];
-
 extern int forcePowerDarkLight[NUM_FORCE_POWERS];
 
 #define ARENAS_PER_TIER		4

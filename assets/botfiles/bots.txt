@@ -1,0 +1,133 @@
+// Dark Side bots
+{
+name		"^0D^3e^0s^3a^0n^3n"
+model		Desann
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0T^3a^0v^3i^0o^3n"
+model		Tavion
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0S^3h^0a^3d^0o^3w"
+model		Shadowtrooper
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0R^3e^0e^3l^0o"
+model		Reelo
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0K^3r^0u^3s^0s^3k"
+model		Trandoshan
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0A^3k^0-^3B^0u^3z"
+model		Weequay
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0B^3e^0e^3d^0o"
+model		Rodian
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0R^3e^0e^3-^0Y^3e^0e^3s"
+model		Gran
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0S^3P^0-^35^09^37"
+model		Stormpilot
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0S^3W^0-^39^06^37"
+model		Swamptrooper
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0T^3K^0-^34^02^31"
+model		Stormtrooper
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0R^3e^0b^3o^0r^3n"
+model		Reborn
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0A^3c^0r^3o^0b^3a^0t"
+model		Reborn/acrobat
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0B^3o^0s^3s"
+model		Reborn/boss
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0F^3e^0n^3c^0e^3r"
+model		Reborn/fencer
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0F^3o^0r^3c^0e^3u^0s^3e^0r"
+model		Reborn/forceuser
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0I^3m^0p^3e^0r^3i^0a^3l"
+model		Imperial
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0C^3o^0m^3m^0a^3n^0d^3e^0r"
+model		Imperial/commander
+color1		0
+personality	/botfiles/atomic.jkb
+}
+
+{
+name		"^0O^3f^0f^3i^0c^3e^0r"
+model		Imperial/officer
+color1		0
+personality	/botfiles/atomic.jkb
+}
