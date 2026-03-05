@@ -750,7 +750,7 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 
 void WP_ForcePowerRegenerate( gentity_t *self, int overrideAmt )
 { //called on a regular interval to regenerate force power.
-	if (self->client->ps.weapon != WP_SABER || self->client->ps.pm_type == PM_JETPACK || !self->client)
+	if (self->client->ps.weapon != WP_SABER || (self->client->ps.eFlags & EF_JETPACK) || !self->client)
 	{
 		return;
 	}
@@ -2810,7 +2810,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		if (ent == self)
 			continue;
 		// Tox: Push & Pull Don't Effect Jetpack
-		if (ent->client && OnSameTeam(ent, self) || (!(ent->r.svFlags & SVF_BOT) && ent->client->ps.weapon == WP_SABER && ent->client->ps.saberHolstered) || ent->client->ps.eFlags & EF_JETPACK)
+		if (ent->client && OnSameTeam(ent, self) || (!(ent->r.svFlags & SVF_BOT) && ent->client->ps.weapon == WP_SABER && ent->client->ps.saberHolstered) || (ent->client->ps.eFlags & EF_JETPACK))
 		{
 			continue;
 		}
@@ -4419,7 +4419,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	int			prepower = 0;
 	//see if any force powers are running
 
-	if (self->client->ps.weapon != WP_SABER || self->client->ps.pm_type == PM_JETPACK) {
+	if (self->client->ps.weapon != WP_SABER || (self->client->ps.eFlags & EF_JETPACK)) {
 		if (self->client->ps.fd.forcePowersActive & (1 << FP_LEVITATION)) {
 			WP_ForcePowerStop( self, FP_LEVITATION );
 		}

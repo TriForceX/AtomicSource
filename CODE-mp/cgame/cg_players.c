@@ -6099,13 +6099,6 @@ void CG_Player( centity_t *cent ) {
 		trap_R_AddRefEntityToScene( &seeker );
 	}
 
-	// Render the jetpack, The Eternal
-	if (cent->currentState.eFlags & EF_DEAD)
-	{
-		//Make sure jetpack is turned off if were dead!! :)
-		cent->currentState.eFlags &= ~EF_JETPACK;
-	}
-
 	if( cent->currentState.eFlags & EF_JETPACK )
 	{
 		vec3_t	axis[3];
@@ -6168,8 +6161,8 @@ void CG_Player( centity_t *cent ) {
 		if (cent->bJetPackOn == qtrue)
 		{
 			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/jetpack/jetpackoff.wav" ));
+			cent->bJetPackOn = qfalse;
 		}
-		cent->bJetPackOn = qfalse;
 	}
 
 doEssentialOne:

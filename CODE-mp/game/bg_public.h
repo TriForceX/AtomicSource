@@ -183,7 +183,7 @@ extern qboolean			LAUNCH[MAX_CLIENTS - 1];
 typedef enum {
 	PM_NORMAL,		// can accelerate and turn
 	PM_FLOAT,		// float with no gravity in general direction of velocity (intended for gripping)
-	PM_JETPACK,		// jetpack movement, The Eternal
+	PM_NOCLIP,		// noclip movement
 	PM_SPECTATOR,	// still run into walls
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control

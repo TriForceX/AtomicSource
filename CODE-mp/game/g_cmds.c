@@ -468,6 +468,33 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\"", msg));
 }
 
+/*
+==================
+Cmd_Noclip_f
+
+argv(0) noclip
+==================
+*/
+void Cmd_Noclip_f( gentity_t *ent ) {
+	char	*msg;
+
+	if ( !CheatsOk( ent ) ) {
+		return;
+	}
+
+	if ( ent->client->noclip ) {
+		msg = "noclip OFF\n";
+	} else {
+		msg = "noclip ON\n";
+		if (ent->client->ps.eFlags & EF_JETPACK) {
+			ent->client->ps.eFlags &= ~EF_JETPACK;
+		}
+	}
+	ent->client->noclip = !ent->client->noclip;
+
+	trap_SendServerCommand( ent-g_entities, va("print \"%s\"", msg));
+}
+
 
 /*
 ==================
@@ -2097,9 +2124,6 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 	{
 		if (ent->client->ps.saberHolstered)
 		{
-			if (ent->client->ps.eFlags & EF_JETPACK) {
-				ent->client->ps.eFlags = ent->client->ps.eFlags & EF_JETPACK ? ent->client->ps.eFlags & ~EF_JETPACK : ent->client->ps.eFlags | EF_JETPACK;
-			}
 			ent->client->ps.saberHolstered = qfalse;
 			if (!(ent->r.svFlags & SVF_BOT))
 			{
@@ -2496,6 +2520,10 @@ void ClientCommand( int clientNum ) {
 		{
 			giveError = qtrue;
 		}
+		else if (!Q_stricmp(cmd, "noclip"))
+		{
+			giveError = qtrue;
+		}
 		else if (!Q_stricmp(cmd, "kill"))
 		{
 			giveError = qtrue;
@@ -2581,6 +2609,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_God_f (ent);
 	else if (Q_stricmp (cmd, "notarget") == 0)
 		Cmd_Notarget_f (ent);
+	else if (Q_stricmp (cmd, "noclip") == 0)
+		Cmd_Noclip_f (ent);
 	else if (Q_stricmp (cmd, "kill") == 0)
 		Cmd_Kill_f (ent);
 	else if (Q_stricmp (cmd, "teamtask") == 0)
@@ -2649,12 +2679,20 @@ void ClientCommand( int clientNum ) {
 			}
 		}
 	}
-	else if (Q_stricmp (cmd, "jetpack") == 0 && ent->client->ps.saberMove != LS_NONE && !ent->client->ps.duelInProgress)	// Enable or Disable the jetpack, The Eternal
+	else if (Q_stricmp (cmd, "jetpack") == 0)	// Enable or Disable the jetpack, The Eternal
 	{
-		if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) {
-			LAUNCH[ent->client->ps.clientNum] = qtrue;
+		if (ent->client->ps.saberMove != LS_NONE && !ent->client->ps.duelInProgress && !ent->client->noclip)
+		{
+			//Tox: jetpack launch
+			if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) {
+				ent->client->ps.velocity[2] = 40;
+			}
+			if (ent->client->ps.eFlags & EF_JETPACK) {
+				ent->client->ps.eFlags &= ~EF_JETPACK;
+			} else {
+				ent->client->ps.eFlags |= EF_JETPACK;
+			}
 		}
-		ent->client->ps.eFlags = ent->client->ps.eFlags & EF_JETPACK ? ent->client->ps.eFlags & ~EF_JETPACK : ent->client->ps.eFlags | EF_JETPACK;
 	}
 	else if (Q_stricmp(cmd, "help") == 0) {
 		trap_SendServerCommand(ent-g_entities,"print \"\n\n^1====================================\n             ^7ATOMIC MOD\n^1====================================\n      ^3/bind <key> jetpack\n      ^7/cg_login <code>\n      ^7/ignore <client>\n      ^7/say_team <clan chat>\n      ^7/who\n      ^3/dance  /sit  /surrender\n^1====================================\n^7uL-Tox, uL-Tech, Player N1, TriForce\n^1====================================\n\n\n\"");
@@ -2892,9 +2930,7 @@ void ClientCommand( int clientNum ) {
 		}
 		else
 		{
-			if (Q_stricmp(cmd, "jetpack") != 0) {
-				trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
-			}
+			trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 		}
 	}
 }

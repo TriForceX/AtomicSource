@@ -109,6 +109,11 @@ void P_WorldEffects( gentity_t *ent ) {
 	qboolean	envirosuit;
 	int			waterlevel;
 
+	if ( ent->client->noclip ) {
+		ent->client->airOutTime = level.time + 12000;	// don't need air
+		return;
+	}
+
 	waterlevel = ent->waterlevel;
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
@@ -621,6 +626,17 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
 		Cmd_FollowCycle_f( ent, 1 );
 	}
+
+	// alt attack button cycles backwards
+	if ( client->sess.spectatorState == SPECTATOR_FOLLOW && (client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK) )
+	{
+		Cmd_FollowCycle_f( ent, -1 );
+	}
+
+	if (client->sess.spectatorState == SPECTATOR_FOLLOW && (ucmd->upmove > 0))
+	{ //jump now removes you from follow mode
+		StopFollowing(ent);
+	}
 }
 
 /*
@@ -1124,14 +1140,17 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 	}
 
-	if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+	if ( client->noclip ) {
+		client->ps.pm_type = PM_NOCLIP;
+	} else if ( client->ps.eFlags & EF_DISINTEGRATION ) {
+		client->ps.pm_type = PM_NOCLIP;
+	} else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 		client->ps.pm_type = PM_DEAD;
 	} else if ( client->ps.eFlags & EF_JETPACK ) {	// Jetpack enabled, The Eternal
 		if (client->ps.weapon == WP_SABER && client->ps.saberHolstered == qfalse) {
 			G_Sound(ent, CHAN_AUTO, saberOffSound);
 			client->ps.saberHolstered = qtrue;
 		}
-		client->ps.pm_type = PM_JETPACK;
 	} else {
 		if (client->ps.forceGripChangeMovetype)
 		{
@@ -1482,7 +1501,7 @@ void ClientThink_real( gentity_t *ent ) {
 		{
 			//Tox: switch off jetpack
 			if (ent->client->ps.eFlags & EF_JETPACK) {
-				ent->client->ps.eFlags = ent->client->ps.eFlags & EF_JETPACK ? ent->client->ps.eFlags & ~EF_JETPACK : ent->client->ps.eFlags | EF_JETPACK;
+				ent->client->ps.eFlags &= ~EF_JETPACK;
 			}
 			Cmd_EngageDuel_f(ent);
 		}
@@ -1626,7 +1645,9 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// link entity now, after any personal teleporters have been used
 	trap_LinkEntity (ent);
-	G_TouchTriggers( ent );
+	if ( !ent->client->noclip ) {
+		G_TouchTriggers( ent );
+	}
 
 	// NOTE: now copy the exact origin over otherwise clients can be snapped into solid
 	VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );

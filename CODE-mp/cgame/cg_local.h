@@ -849,8 +849,6 @@ typedef struct {
 
 	vec3_t			lastFPFlashPoint;
 
-	qboolean		bJetpackOn;
-
 /*
 Ghoul2 Insert Start
 */

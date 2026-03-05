@@ -379,7 +379,7 @@ static void CG_TouchTriggerPrediction( void ) {
 
 	spectator = ( cg.predictedPlayerState.pm_type == PM_SPECTATOR );
 
-	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && cg.predictedPlayerState.pm_type != PM_JETPACK && cg.predictedPlayerState.pm_type != PM_FLOAT && !spectator ) {
+	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && !(cg.predictedPlayerState.eFlags & EF_JETPACK) && cg.predictedPlayerState.pm_type != PM_FLOAT && !spectator ) {
 		return;
 	}
 

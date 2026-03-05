@@ -3082,6 +3082,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	client = targ->client;
 
+	if ( client ) {
+		if ( client->noclip ) {
+			return;
+		}
+	}
+
 	if ( !dir ) {
 		dflags |= DAMAGE_NO_KNOCKBACK;
 	} else {

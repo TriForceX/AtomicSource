@@ -299,13 +299,13 @@ static void PM_Friction( void ) {
 		drop += speed*pm_waterfriction*pm->waterlevel*pml.frametime;
 	}
 
-	if ( pm->ps->pm_type == PM_SPECTATOR || pm->ps->pm_type == PM_FLOAT || pm->ps->pm_type == PM_JETPACK )
+	if ( pm->ps->pm_type == PM_SPECTATOR || pm->ps->pm_type == PM_FLOAT || (pm->ps->eFlags & EF_JETPACK) )
 	{
 		if (pm->ps->pm_type == PM_FLOAT)
 		{ //almost no friction while floating
 			drop += speed*0.1*pml.frametime;
 		}
-		else if (pm->ps->pm_type == PM_JETPACK)
+		else if (pm->ps->eFlags & EF_JETPACK)
 		{ //not much friction while jetpacking
 			drop += speed*pm_jetpackfriction*pml.frametime;		// TODO: Take weight into account, The Eternal
 		}
@@ -1468,8 +1468,6 @@ PM_JetpackMove
 Jetpack enabled, The Eternal
 ===================
 */
-qboolean	LAUNCH[MAX_CLIENTS - 1];
-
 static void PM_JetpackMove( void ) {
 	int		i;
 	vec3_t	wishvel;
@@ -1506,11 +1504,6 @@ static void PM_JetpackMove( void ) {
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove + scale * pml.right[i]*pm->cmd.rightmove;
 		}
 		wishvel[2] += scale * pm->cmd.upmove;
-		pm->ps->eFlags	|= EF_JETPACK_THRUST;
-	}
-	//Tox: jetpack launch
-	if (LAUNCH[pm->ps->clientNum]) {
-		wishvel[2]	+= 40;
 		pm->ps->eFlags	|= EF_JETPACK_THRUST;
 	}
 
@@ -1783,6 +1776,72 @@ static void PM_DeadMove( void ) {
 		VectorNormalize (pm->ps->velocity);
 		VectorScale (pm->ps->velocity, forward, pm->ps->velocity);
 	}
+}
+
+/*
+===============
+PM_NoclipMove
+===============
+*/
+static void PM_NoclipMove( void ) {
+	float	speed, drop, friction, control, newspeed;
+	int			i;
+	vec3_t		wishvel;
+	float		fmove, smove;
+	vec3_t		wishdir;
+	float		wishspeed;
+	float		scale;
+
+	pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+
+	// friction
+
+	speed = VectorLength (pm->ps->velocity);
+	if (speed < 1)
+	{
+		VectorCopy (vec3_origin, pm->ps->velocity);
+	}
+	else
+	{
+		drop = 0;
+
+		friction = pm_friction*1.5;	// extra friction
+		control = speed < pm_stopspeed ? pm_stopspeed : speed;
+		drop += control*friction*pml.frametime;
+
+		// scale the velocity
+		newspeed = speed - drop;
+		if (newspeed < 0)
+			newspeed = 0;
+		newspeed /= speed;
+
+		VectorScale (pm->ps->velocity, newspeed, pm->ps->velocity);
+	}
+
+	// accelerate
+	scale = PM_CmdScale( &pm->cmd );
+	if (pm->cmd.buttons & BUTTON_ATTACK) {	//turbo boost
+		scale *= 10;
+	}
+	if (pm->cmd.buttons & BUTTON_ALT_ATTACK) {	//turbo boost
+		scale *= 10;
+	}
+
+	fmove = pm->cmd.forwardmove;
+	smove = pm->cmd.rightmove;
+	
+	for (i=0 ; i<3 ; i++)
+		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
+	wishvel[2] += pm->cmd.upmove;
+
+	VectorCopy (wishvel, wishdir);
+	wishspeed = VectorNormalize(wishdir);
+	wishspeed *= scale;
+
+	PM_Accelerate( wishdir, wishspeed, pm_accelerate );
+
+	// move
+	VectorMA (pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
 }
 
 //============================================================================
@@ -4302,14 +4361,14 @@ void PmoveSingle (pmove_t *pmove) {
 	pm->waterlevel = 0;
 
 	//Tox: jetpack launch
-	if (LAUNCH[pm->ps->clientNum] && PM_GroundDistance() < 40) {
-		pm->cmd.forwardmove = 0;
-		pm->cmd.rightmove = 0;
-		if (pm->cmd.upmove < 0) {
-			pm->cmd.upmove = 0;
+	if (pm->ps->eFlags & EF_JETPACK) {
+		if (PM_GroundDistance() < 40) {
+			pm->cmd.forwardmove = 0;
+			pm->cmd.rightmove = 0;
+			if (pm->cmd.upmove < 0) {
+				pm->cmd.upmove = 0;
+			}
 		}
-	} else if (LAUNCH[pm->ps->clientNum] && PM_GroundDistance() >= 40) {
-		LAUNCH[pm->ps->clientNum] = qfalse;
 	}
 
 	if (pm->ps->pm_type == PM_FLOAT)
@@ -4515,6 +4574,12 @@ void PmoveSingle (pmove_t *pmove) {
 		return;
 	}
 
+	if ( pm->ps->pm_type == PM_NOCLIP ) {
+		PM_NoclipMove ();
+		PM_DropTimers ();
+		return;
+	}
+
 	if (pm->ps->pm_type == PM_FREEZE) {
 		return;		// no movement at all
 	}
@@ -4553,9 +4618,13 @@ void PmoveSingle (pmove_t *pmove) {
 	{
 		PM_FlyMove();
 	}
-	else if (pm->ps->pm_type == PM_JETPACK) // Handle jetpack movement, The Eternal
+	else if (pm->ps->eFlags & EF_JETPACK) // Handle jetpack movement, The Eternal
 	{
-		PM_JetpackMove();
+		if (!pml.groundPlane) {
+			PM_JetpackMove();
+		} else {
+			pm->ps->eFlags &= ~EF_JETPACK;
+		}
 	}
 	else
 	{
@@ -4571,10 +4640,6 @@ void PmoveSingle (pmove_t *pmove) {
 			// airborne
 			PM_AirMove();
 		}
-	}
-	if (!LAUNCH[pm->ps->clientNum] && pm->ps->pm_type == PM_JETPACK && pml.groundPlane)
-	{
-		pm->ps->eFlags = pm->ps->eFlags & EF_JETPACK ? pm->ps->eFlags & ~EF_JETPACK : pm->ps->eFlags | EF_JETPACK;
 	}
 
 	PM_Animate();
