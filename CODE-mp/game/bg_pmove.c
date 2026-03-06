@@ -1489,6 +1489,10 @@ static void PM_JetpackMove( void ) {
 	//
 	// user intentions
 	//
+	if (pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) {
+		pm->ps->eFlags &= ~EF_JETPACK;
+		pm->ps->fd.forcePower = pm->ps->fd.forcePowerMax;
+	}
 	if (!scale && !pm->cmd.upmove) {
 		wishvel[0]	= 0;
 		wishvel[1]	= 0;
