@@ -1153,11 +1153,22 @@ void ClientUserinfoChanged( int clientNum ) {
 		client->pers.predictItemPickup = qtrue;
 	}
 
-	// Tox: Auto Login From Clientside
-	client->pers.clan = atoi(Info_ValueForKey( userinfo, "cg_login" ));
-	MOD_PLUGIN[clientNum] = qfalse;
-	if (client->pers.clan) {
+	// Tr!Force: Check main cvar from Clientside
+	s = Info_ValueForKey( userinfo, "cg_plugin" );
+	if ( !atoi( s ) ) {
+		MOD_PLUGIN[clientNum] = qfalse;
+	} else {
 		MOD_PLUGIN[clientNum] = qtrue;
+	}
+
+	// Tox: Auto Login From Clientside
+	s = Info_ValueForKey( userinfo, "cg_login" );
+	if ( !atoi( s ) ) {
+		client->pers.clan = 0;
+	} else {
+		client->pers.clan = atoi( s );
+		// Fallback clientside check old clients
+		if (!MOD_PLUGIN[clientNum]) MOD_PLUGIN[clientNum] = qtrue;
 	}
 
 	// set name

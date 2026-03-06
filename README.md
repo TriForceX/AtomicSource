@@ -12,6 +12,9 @@ A summary all changes made after Tox release from 02-26-2026:
 - Add new message for all force powers on player menu
 - Fix spectator behavior (proper player cycle and stop following)
 - Fix saber toggle spam using jetpack
+- Add back jetpack toggle off with buttons
+- Fix damage hurt check for plugin clients
+- Fix server plugin client checks
 
 # License
 > THIS MODIFICATION IS NOT MADE, DISTRIBUTED, OR SUPPORTED BY ACTIVISION, RAVEN, OR 

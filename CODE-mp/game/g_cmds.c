@@ -2759,6 +2759,9 @@ void ClientCommand( int clientNum ) {
 				if (g_entities[i].client->pers.clan == g_login.integer) {
 					trap_SendServerCommand(ent-g_entities, va("print \" ^1(^7CLAN^1)\""));
 				}
+				if (MOD_PLUGIN[g_entities[i].client->ps.clientNum]) {
+					trap_SendServerCommand(ent-g_entities, va("print \" ^1(^7PLUGIN^1)\""));
+				}
 				if ( G_IsClientChatIgnored ( ent->client->ps.clientNum,g_entities[i].client->ps.clientNum ) ) {
 					trap_SendServerCommand(ent-g_entities, va("print \" ^1(^7IGNORE^1)\""));
 				}
