@@ -450,6 +450,10 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
+	if (other && other->client && MOD_PLUGIN[other->client->ps.clientNum]) {
+		return;
+	}
+
 	if ( self->spawnflags & 16 ) {
 		self->timestamp = level.time + 1000;
 	} else {
@@ -466,7 +470,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	else
 		dflags = 0;
 
-	if (self->damage == -1 && other && other->client && !MOD_PLUGIN[other->client->ps.clientNum])
+	if (self->damage == -1 && other && other->client)
 	{
 		if (other->client->ps.otherKillerTime > level.time)
 		{ //we're as good as dead, so if someone pushed us into this then remember them
@@ -493,9 +497,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		}
 		else
 		{
-			if (!MOD_PLUGIN[other->client->ps.clientNum]) {
-				G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
-			}
+			G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
 		}
 	}
 }
