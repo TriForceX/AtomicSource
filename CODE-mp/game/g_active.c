@@ -677,41 +677,35 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	vec3_t		lock;
 	float 		closest, distcheck, diff[3];
 	int			i;
+	qboolean	isBot = (ent->r.svFlags & SVF_BOT);
+	qboolean	attacking = (ent->client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK));
 
 	gclient_t	*client;
 	client = ent->client;
 
-
 	//Tox: AUTORAGE when attacking
-	if ((!(ent->r.svFlags & SVF_BOT) || (ent->r.svFlags & SVF_BOT && g_berzerk.integer)) && client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) {
-		if (client->ps.fd.forcePowersActive & (1 << FP_ABSORB)) {
-			WP_ForcePowerStop( ent, FP_ABSORB );
+	if (!isBot || g_berzerk.integer)
+	{
+		if (attacking)
+		{
+			if (client->ps.fd.forcePowersActive & (1 << FP_ABSORB)) WP_ForcePowerStop(ent, FP_ABSORB);
+			if (client->ps.fd.forcePowersActive & (1 << FP_PROTECT)) WP_ForcePowerStop(ent, FP_PROTECT);
+			if (client->ps.fd.forcePowersActive & (1 << FP_SEE)) WP_ForcePowerStop(ent, FP_SEE);
+			if (client->ps.fd.forcePowersActive & (1 << FP_SPEED)) WP_ForcePowerStop(ent, FP_SPEED);
+			if (client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)) WP_ForcePowerStop(ent, FP_TELEPATHY);
+			if (!(client->ps.fd.forcePowersActive & (1 << FP_RAGE))) ForceRage(ent);
 		}
-		if (client->ps.fd.forcePowersActive & (1 << FP_PROTECT)) {
-			WP_ForcePowerStop( ent, FP_PROTECT );
-		}
-		if (client->ps.fd.forcePowersActive & (1 << FP_SEE)) {
-			WP_ForcePowerStop( ent, FP_SEE );
-		}
-		if (client->ps.fd.forcePowersActive & (1 << FP_SPEED)) {
-			WP_ForcePowerStop( ent, FP_SPEED );
-		}
-		if (client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)) {
-			WP_ForcePowerStop( ent, FP_TELEPATHY );
-		}
-		if (!(client->ps.fd.forcePowersActive & (1 << FP_RAGE))) {
-			ForceRage(ent);
-		}
-	}
-	if ((!(ent->r.svFlags & SVF_BOT) || (ent->r.svFlags & SVF_BOT && g_berzerk.integer)) && !(client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK))) {
-		if (client->ps.fd.forcePowersActive & (1 << FP_RAGE) && BG_SaberInIdle(client->ps.saberMove) && !client->ps.saberInFlight) {
-			WP_ForcePowerStop( ent, FP_RAGE );
+		else
+		{
+			if ((client->ps.fd.forcePowersActive & (1 << FP_RAGE)) && BG_SaberInIdle(client->ps.saberMove) && !client->ps.saberInFlight) {
+				WP_ForcePowerStop(ent, FP_RAGE);
+			}
 		}
 	}
 	if (client->ps.duelInProgress && client->ps.dualBlade) {
 		client->ps.dualBlade = qfalse;
 	}
-	if (!(ent->r.svFlags & SVF_BOT) && !client->ps.duelInProgress && !client->ps.dualBlade) {
+	if (!isBot && !client->ps.duelInProgress && !client->ps.dualBlade) {
 		client->ps.dualBlade = qtrue;
 		G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/weapons/saber/saberon.wav"));
 	}
@@ -726,7 +720,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			}
 		}
 	}
-	if (client->pers.cmd.forwardmove || client->pers.cmd.rightmove || client->pers.cmd.upmove || (client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK))) {
+	if (client->pers.cmd.forwardmove || client->pers.cmd.rightmove || client->pers.cmd.upmove || attacking) {
 		client->MOTDtime = level.time + 60000;
 	}
 
