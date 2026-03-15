@@ -1129,6 +1129,11 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
+	//Tox: switch off jetpack
+	if ((ent->client->ps.eFlags & EF_JETPACK) && ent->client->ps.pm_type == PM_DEAD) {
+		ent->client->ps.eFlags &= ~EF_JETPACK;
+	}
+
 	// clear the rewards if time
 	if ( level.time > client->rewardTime ) {
 		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );

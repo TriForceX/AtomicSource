@@ -2681,7 +2681,7 @@ void ClientCommand( int clientNum ) {
 	}
 	else if (Q_stricmp (cmd, "jetpack") == 0)	// Enable or Disable the jetpack, The Eternal
 	{
-		if (ent->client->ps.saberMove != LS_NONE && !ent->client->ps.duelInProgress && !ent->client->noclip)
+		if (!ent->client->ps.duelInProgress && !ent->client->noclip)
 		{
 			//Tox: jetpack launch
 			if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) {
