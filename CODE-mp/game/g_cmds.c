@@ -2695,7 +2695,21 @@ void ClientCommand( int clientNum ) {
 		}
 	}
 	else if (Q_stricmp(cmd, "help") == 0) {
-		trap_SendServerCommand(ent-g_entities,"print \"\n\n^1====================================\n             ^7ATOMIC MOD\n^1====================================\n      ^3/bind <key> jetpack\n      ^7/cg_login <code>\n      ^7/ignore <client>\n      ^7/say_team <clan chat>\n      ^7/who\n      ^3/dance  /sit  /surrender\n^1====================================\n^7uL-Tox, uL-Tech, Player N1, TriForce\n^1====================================\n\n\n\"");
+		trap_SendServerCommand(ent-g_entities, "print \"\n\n"
+			"^1====================================\n"
+			"             ^7ATOMIC MOD\n"
+			"^1====================================\n"
+			"      ^3/bind <key> jetpack\n"
+			"      ^7/cg_jetpack <1 or 0>\n"
+			"      ^7/cg_login <code>\n"
+			"      ^7/ignore <client>\n"
+			"      ^7/say_team <clan chat>\n"
+			"      ^7/who\n"
+			"      ^3/dance  /sit  /surrender\n"
+			"^1====================================\n"
+			"^7uL-Tox, uL-Tech, Player N1, TriForce\n"
+			"^1====================================\n"
+			"\n\n\"");
 	}
 	else if (Q_stricmp ( cmd, "ignore" ) == 0 ){
 		int ignoree = -1;

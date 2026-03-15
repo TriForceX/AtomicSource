@@ -6099,68 +6099,110 @@ void CG_Player( centity_t *cent ) {
 		trap_R_AddRefEntityToScene( &seeker );
 	}
 
-	if( cent->currentState.eFlags & EF_JETPACK )
+	// Tr!Force: Jetpack model
+	if (cent->currentState.eFlags & EF_JETPACK)
 	{
-		vec3_t	axis[3];
-		vec3_t	fAng, fxDir;
-		float	effectback;
+		int time = cg.time;
+		int newBolt;
+		mdxaBone_t matrix;
+		vec3_t boltOrg, bAngles;
+		vec3_t flamePos, flameDir;
+		vec3_t flamePos2, flameDir2;
+		refEntity_t re;
+		vec4_t modelDetails = { 0, 0, 0, 1 };
 
-		if (cent->bJetPackOn == qfalse && cent->currentState.groundEntityNum == ENTITYNUM_NONE) {
-			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/jetpack/ignite.wav" ));
+		if (!cent->bJetPackOn && cent->currentState.groundEntityNum == ENTITYNUM_NONE) {
+			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackIgniteSound);
 			cent->bJetPackOn = qtrue;
 		}
+		
+		newBolt = trap_G2API_AddBolt(cent->ghoul2, 0, "*chestg");
 
-		VectorCopy( cent->lerpOrigin, efOrg );
-
-		//Default backwards offset for the effect
-		effectback = -6.0;
-
-		efOrg[2] += 20;
-
-		//cg.refdef.viewaxis[0]
-		VectorSet( fAng, 0, cent->pe.torso.yawAngle, 0 );
-		AngleVectors( fAng, fxDir, NULL, NULL );
-		AnglesToAxis( fAng, axis );
-
-		VectorMA( efOrg, effectback, fxDir, efOrg );
-		VectorSet( fxDir, 1, 0, 0 );
-
-		if( cent->currentState.eFlags & EF_JETPACK_THRUST )
+		if (newBolt != -1)
 		{
-			trap_FX_PlayEffectID(trap_FX_RegisterEffect("jetpack/thrust"), efOrg, fxDir);
+			memset(&re, 0, sizeof(refEntity_t));
 
-			if (cg.snap->ps.clientNum == cent->currentState.number)
+			VectorCopy(cent->lerpAngles, bAngles);
+			bAngles[PITCH] = 0;
+			bAngles[YAW] = cent->turAngles[YAW];
+			bAngles[ROLL] = 0;
+
+			trap_G2API_GetBoltMatrix(cent->ghoul2, 0, newBolt, &matrix, bAngles, cent->lerpOrigin, time, cgs.gameModels, cent->modelScale);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_X, re.axis[0]);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_Y, re.axis[1]);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_Z, re.axis[2]);
+			VectorMA(boltOrg, modelDetails[0], re.axis[0], boltOrg);
+			VectorMA(boltOrg, modelDetails[1], re.axis[1], boltOrg);
+			VectorMA(boltOrg, modelDetails[2], re.axis[2], boltOrg);
+
+			re.hModel = cgs.media.jetpackModel;
+			VectorCopy(boltOrg, re.lightingOrigin);
+			VectorCopy(boltOrg, re.origin);
+
+			if (modelDetails[3] != 1) 
 			{
-				trap_S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin,
-				trap_S_RegisterSound( "sound/jetpack/thrust.wav" ) );
+				re.modelScale[0] = modelDetails[3];
+				re.modelScale[1] = modelDetails[3];
+				re.modelScale[2] = modelDetails[3];
+				ScaleModelAxis(&re);
+			}
+
+			// Check chat player transparency
+			if (!cg_jetpack.integer)
+			{
+				re.renderfx |= RF_FORCE_ENT_ALPHA;
+				re.shaderRGBA[3] = 0;
+				if (re.shaderRGBA[3] < 1) re.shaderRGBA[3] = 1;
+			}
+
+			// Special effects
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, ORIGIN, flamePos);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, ORIGIN, flamePos2);
+
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, flameDir);
+			VectorMA(flamePos, cg_jetpack.integer ? -10 : 0, flameDir, flamePos);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_X, flameDir);
+			VectorMA(flamePos, -6, flameDir, flamePos);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_Z, flameDir);
+			VectorMA(flamePos, -6, flameDir, flamePos);
+
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_Y, flameDir2);
+			VectorMA(flamePos2, cg_jetpack.integer ? -10 : 0, flameDir2, flamePos2);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_X, flameDir2);
+			VectorMA(flamePos2, -6, flameDir2, flamePos2);
+			trap_G2API_GiveMeVectorFromMatrix(&matrix, POSITIVE_Z, flameDir2);
+			VectorMA(flamePos2, -6, flameDir2, flamePos2);
+
+			if (cent->currentState.eFlags & EF_JETPACK_THRUST)
+			{
+				if (cg_jetpack.integer) {
+					trap_FX_PlayEffectID(cgs.effects.jetpackActiveJKMod, flamePos, flameDir);
+					trap_FX_PlayEffectID(cgs.effects.jetpackActiveJKMod, flamePos2, flameDir2);
+				} else {
+					trap_FX_PlayEffectID(cgs.effects.jetpackActive, flamePos, flameDir);
+				}
+				trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackActiveSound);
 			}
 			else
 			{
-				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-					trap_S_RegisterSound( "sound/jetpack/thrust.wav" ) );
-			}
-		}
-		else
-		{
-			trap_FX_PlayEffectID(trap_FX_RegisterEffect("jetpack/idle"), efOrg, fxDir);
+				if (cg_jetpack.integer) {
+					trap_FX_PlayEffectID(cgs.effects.jetpackIdleJKMod, flamePos, flameDir);
+					trap_FX_PlayEffectID(cgs.effects.jetpackIdleJKMod, flamePos2, flameDir2);
+				} else {
+					trap_FX_PlayEffectID(cgs.effects.jetpackIdle, flamePos, flameDir);
+				}
 
-			if (cg.snap->ps.clientNum == cent->currentState.number)
-			{
-				trap_S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin,
-				trap_S_RegisterSound( "sound/jetpack/idle.wav" ) );
+				trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackIdleSound);
 			}
-			else
-			{
-				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-					trap_S_RegisterSound( "sound/jetpack/idle.wav" ) );
-			}
+
+			trap_R_AddRefEntityToScene(&re);
 		}
 	}
 	else
 	{
-		if (cent->bJetPackOn == qtrue)
-		{
-			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/jetpack/jetpackoff.wav" ));
+		if (cent->bJetPackOn) {
+			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackOffSound);
 			cent->bJetPackOn = qfalse;
 		}
 	}

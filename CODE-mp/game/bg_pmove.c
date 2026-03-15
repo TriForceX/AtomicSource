@@ -1514,12 +1514,26 @@ static void PM_JetpackMove( void ) {
 		pm->ps->eFlags	|= EF_JETPACK_THRUST;
 	}
 
-	if ( pm->ps->weaponTime )
-		parts = SETANIM_LEGS;
+	if ( pm->ps->weaponTime ) parts = SETANIM_LEGS;
 
 	//Tox: smooth jetpack landing
-	if (!pml.groundPlane) {
-		PM_SetAnim( parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+	if ( !pml.groundPlane ) 
+	{
+		if (pm->cmd.rightmove < 0) {
+			PM_SetAnim( SETANIM_LEGS, BOTH_FORCEJUMPLEFT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+		}
+		else if(pm->cmd.rightmove > 0) {
+			PM_SetAnim( SETANIM_LEGS, BOTH_FORCEJUMPRIGHT1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+		}
+		else if(pm->cmd.forwardmove > 0) {
+			PM_SetAnim( SETANIM_LEGS, BOTH_FORCEJUMP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+		}
+		else if(pm->cmd.forwardmove < 0) {
+			PM_SetAnim( SETANIM_LEGS, BOTH_FORCEJUMPBACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+		}
+		else {
+			PM_SetAnim( parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 300 );
+		}
 	}
 
 	VectorCopy (wishvel, wishdir);

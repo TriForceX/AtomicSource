@@ -458,6 +458,7 @@ vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
 vmCvar_t	cg_login;
 vmCvar_t	cg_plugin;
+vmCvar_t	cg_jetpack;
 vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
@@ -606,6 +607,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 	{ &cg_login, "cg_login", "1", CVAR_USERINFO | CVAR_ARCHIVE },
 	{ &cg_plugin, "cg_plugin", "1", CVAR_USERINFO | CVAR_ROM },
+	{ &cg_jetpack, "cg_jetpack", "1", CVAR_ARCHIVE },
 	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
@@ -1476,6 +1478,19 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.binocularOverlay		= trap_R_RegisterShader( "gfx/2d/binocularNumOverlay" );
 
 	cg.loadLCARSStage = 5;
+
+	// Tr!Force: Jetpack assets
+	cgs.media.jetpackModel			= trap_R_RegisterModel("models/items/jkmod_jetpack.md3");
+
+	cgs.effects.jetpackActive		= trap_FX_RegisterEffect("jetpack/thrust");
+	cgs.effects.jetpackIdle			= trap_FX_RegisterEffect("jetpack/idle");
+	cgs.effects.jetpackActiveJKMod	= trap_FX_RegisterEffect("jkmod_jetpack/thrust");
+	cgs.effects.jetpackIdleJKMod	= trap_FX_RegisterEffect("jkmod_jetpack/idle");
+
+	cgs.media.jetpackActiveSound	= trap_S_RegisterSound("sound/jetpack/thrust.wav");
+	cgs.media.jetpackIdleSound		= trap_S_RegisterSound("sound/jetpack/idle.wav");
+	cgs.media.jetpackIgniteSound	= trap_S_RegisterSound("sound/jetpack/ignite.wav");
+	cgs.media.jetpackOffSound		= trap_S_RegisterSound("sound/jetpack/jetpackoff.wav");
 
 /*
 Ghoul2 Insert Start

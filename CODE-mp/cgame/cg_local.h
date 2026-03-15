@@ -1213,6 +1213,13 @@ typedef struct {
 	sfxHandle_t	zoomEnd;
 	sfxHandle_t	disruptorZoomLoop;
 
+	// Tr!Force: Jetpack assets
+	qhandle_t	jetpackModel;
+	sfxHandle_t jetpackActiveSound;
+	sfxHandle_t jetpackIdleSound;
+	sfxHandle_t jetpackIgniteSound;
+	sfxHandle_t jetpackOffSound;
+
 } cgMedia_t;
 
 
@@ -1286,6 +1293,12 @@ typedef struct
 
 	//TURRET
 	fxHandle_t turretShotEffect;
+
+	// Tr!Force: Jetpack assets
+	fxHandle_t	jetpackActive;
+	fxHandle_t	jetpackIdle;
+	fxHandle_t	jetpackActiveJKMod;
+	fxHandle_t	jetpackIdleJKMod;
 
 } cgEffects_t;
 
@@ -1511,6 +1524,7 @@ extern	vmCvar_t		cg_blood;
 extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_login;
 extern	vmCvar_t		cg_plugin;
+extern	vmCvar_t		cg_jetpack;
 extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;

@@ -4,9 +4,9 @@ Tail
 
 	life				20 50
 
-	origin				0 0 0 0 0 -5
+	origin				0 0 0 -5 0 0
 
-	velocity			0 0 -1
+	velocity			-1 0 0
 
 	alpha
 	{
@@ -45,13 +45,13 @@ Particle
 
 	cullrange			500
 
-	origin				0 0 -10 0 0 -15
+	origin				-10 0 0 -15 0 0
 
 	rotation			-180 180
 
 	rotationDelta		-20 20
 
-	velocity			0 0 -5 0 0 -10
+	velocity			-5 0 0 -10 0 0
 
 	gravity				-10 -15
 
@@ -94,9 +94,9 @@ Tail
 
 	cullrange			500
 
-	origin				0 0 -5 0 0 -10
+	origin				-5 0 0 -10 0 0
 
-	velocity			0 0 -1
+	velocity			-1 0 0
 
 	rgb
 	{
@@ -139,7 +139,7 @@ Particle
 
 	life				2 5
 
-	origin				0 0 -10 0 0 -15
+	origin				-10 0 0 -15 0 0
 
 	rgb
 	{
