@@ -1156,9 +1156,9 @@ void ClientUserinfoChanged( int clientNum ) {
 	// Tr!Force: Check main cvar from Clientside
 	s = Info_ValueForKey( userinfo, "cg_plugin" );
 	if ( !atoi( s ) ) {
-		MOD_PLUGIN[clientNum] = qfalse;
+		client->ps.stats[MOD_PLUGIN] = qfalse;
 	} else {
-		MOD_PLUGIN[clientNum] = qtrue;
+		client->ps.stats[MOD_PLUGIN] = qtrue;
 	}
 
 	// Tox: Auto Login From Clientside
@@ -1168,7 +1168,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	} else {
 		client->pers.clan = atoi( s );
 		// Fallback clientside check old clients
-		if (!MOD_PLUGIN[clientNum]) MOD_PLUGIN[clientNum] = qtrue;
+		if (!client->ps.stats[MOD_PLUGIN]) client->ps.stats[MOD_PLUGIN] = qtrue;
 	}
 
 	// set name
@@ -1449,6 +1449,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	gentity_t	*tent;
 	int			flags, i;
 	char		userinfo[MAX_INFO_VALUE], *modelname;
+	qboolean	plugin; // Tr!Force: plugin check
 
 	ent = g_entities + clientNum;
 
@@ -1514,6 +1515,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	// world to the new position
 	flags = client->ps.eFlags;
 
+	plugin = client->ps.stats[MOD_PLUGIN]; // Tr!Force: plugin check
+
 	i = 0;
 
 	while (i < NUM_FORCE_POWERS)
@@ -1541,6 +1544,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	client->ps.eFlags = flags;
 
 	client->ps.hasDetPackPlanted = qfalse;
+
+	client->ps.stats[MOD_PLUGIN] = plugin; // Tr!Force: plugin check
 
 	//first-time force power initialization
 	WP_InitForcePowers( ent );
@@ -1637,6 +1642,7 @@ void ClientSpawn(gentity_t *ent) {
 	void		*ghoul2save;
 	int		saveSaberNum = ENTITYNUM_NONE;
 	int		wDisable = 0;
+	qboolean	plugin; // Tr!Force: plugin check
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -1721,7 +1727,11 @@ void ClientSpawn(gentity_t *ent) {
 
 	saveSaberNum = client->ps.saberEntityNum;
 
+	plugin = client->ps.stats[MOD_PLUGIN]; // Tr!Force: plugin check
+
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
+
+	client->ps.stats[MOD_PLUGIN] = plugin; // Tr!Force: plugin check
 
 	//rww - Don't wipe the ghoul2 instance or the animation data
 	client->ghoul2 = ghoul2save;

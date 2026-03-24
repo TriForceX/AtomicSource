@@ -172,8 +172,6 @@ typedef struct animation_s {
 
 extern qboolean			BGPAFtextLoaded;
 extern animation_t		bgGlobalAnimations[MAX_TOTALANIMATIONS];
-extern qboolean			MOD_PLUGIN[MAX_CLIENTS - 1];
-extern qboolean			LAUNCH[MAX_CLIENTS - 1];
 
 // flip the togglebit every time an animation
 // changes so a restart of the same anim can be detected
@@ -310,7 +308,8 @@ typedef enum {
 	STAT_ARMOR,
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
+	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+	MOD_PLUGIN						// Tr!Force: plugin check
 } statIndex_t;
 
 

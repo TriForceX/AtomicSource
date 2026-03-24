@@ -4544,18 +4544,20 @@ void PmoveSingle (pmove_t *pmove) {
 
 	PM_AdjustAngleForWallRun(pm->ps, &pm->cmd, qtrue);
 
-	if (pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
-		pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
-		pm->ps->saberMove == LS_A_BACKSTAB)
-	{
-		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
-	}
+	if (!pm->ps->stats[MOD_PLUGIN]) { // Tr!Force: check gameplay
+		if (pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
+			pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
+			pm->ps->saberMove == LS_A_BACKSTAB)
+		{
+			PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
+		}
 
-	if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
-		(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP)
-	{
-		pm->ps->viewangles[PITCH] = 0;
-		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
+		if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
+			(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP)
+		{
+			pm->ps->viewangles[PITCH] = 0;
+			PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
+		}
 	}
 
 	// update the viewangles

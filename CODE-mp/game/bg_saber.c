@@ -1130,10 +1130,10 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				newmove = PM_SaberFlipOverAttackMove();
 			}
 			else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1 &&
-				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
+				(pm->ps->stats[MOD_PLUGIN] || pm->ps->groundEntityNum != ENTITYNUM_NONE) && // Tr!Force: check gameplay
 				(pm->ps->pm_flags & PMF_DUCKED) &&
 				pm->ps->weaponTime <= 0 &&
-				!BG_SaberInSpecialAttack(pm->ps->torsoAnim))
+				(pm->ps->stats[MOD_PLUGIN] || !BG_SaberInSpecialAttack(pm->ps->torsoAnim))) // Tr!Force: check gameplay
 			{ //LUNGE (weak)
 				newmove = PM_SaberLungeAttackMove();
 			}

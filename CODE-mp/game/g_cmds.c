@@ -2707,7 +2707,7 @@ void ClientCommand( int clientNum ) {
 			"      ^7/who\n"
 			"      ^3/dance  /sit  /surrender\n"
 			"^1====================================\n"
-			"^7uL-Tox, uL-Tech, Player N1, TriForce\n"
+			"^3u^0L^3-^0T^3o^0x  ^3u^0L^3-^0T^3e^0c^3h  ^7Player N1  ^2Tr!^4For^1ce\n"
 			"^1====================================\n"
 			"\n\n\"");
 	}
@@ -2773,7 +2773,7 @@ void ClientCommand( int clientNum ) {
 				if (g_entities[i].client->pers.clan == g_login.integer) {
 					trap_SendServerCommand(ent-g_entities, va("print \" ^1(^7CLAN^1)\""));
 				}
-				if (MOD_PLUGIN[g_entities[i].client->ps.clientNum]) {
+				if (g_entities[i].client->ps.stats[MOD_PLUGIN]) {
 					trap_SendServerCommand(ent-g_entities, va("print \" ^1(^7PLUGIN^1)\""));
 				}
 				if ( G_IsClientChatIgnored ( ent->client->ps.clientNum,g_entities[i].client->ps.clientNum ) ) {

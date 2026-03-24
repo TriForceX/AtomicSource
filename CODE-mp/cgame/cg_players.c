@@ -2039,7 +2039,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		return;
 	}
 
-	if (cent->currentState.forcePowersActive & (1 << FP_RAGE) && !cg_login.integer)
+	if (cent->currentState.forcePowersActive & (1 << FP_RAGE))
 	{
 		speedScale = 1.3;
 	}
@@ -2061,13 +2061,13 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale, qfalse);
 	}
 
-	if (cent->currentState.forcePowersActive & (1 << FP_RAGE) && !cg_login.integer)
+	if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
 	{ //don't affect torso anim speed unless raged
-		speedScale = 1.7;
+		speedScale = 1;
 	}
 	else
 	{
-		speedScale = 1;
+		speedScale = 1.7;
 	}
 
 	*legsOld = cent->pe.legs.oldFrame;

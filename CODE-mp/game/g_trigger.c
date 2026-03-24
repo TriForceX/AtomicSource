@@ -450,7 +450,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if (other && other->client && MOD_PLUGIN[other->client->ps.clientNum]) {
+	if (other && other->client && other->client->ps.stats[MOD_PLUGIN]) {
 		return;
 	}
 

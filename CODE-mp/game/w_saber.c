@@ -2854,7 +2854,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.saberCanThrow = qtrue;
 	}
 
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) && !MOD_PLUGIN[self->client->ps.clientNum])
+	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) && !self->client->ps.stats[MOD_PLUGIN])
 	{
 		animSpeedScale = 2;
 	}

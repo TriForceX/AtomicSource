@@ -730,7 +730,6 @@ models/players/visor/animation.cfg, etc
 char		BGPAFtext[40000];
 qboolean	BGPAFtextLoaded = qfalse;
 animation_t	bgGlobalAnimations[MAX_TOTALANIMATIONS];
-qboolean	MOD_PLUGIN[MAX_CLIENTS - 1];
 
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
@@ -1102,7 +1101,7 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,int blendTime)		
 				pm->ps->torsoTimer = ((animations[anim].numFrames ) * fabs(animations[anim].frameLerp));
 			}
 
-			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE) && !MOD_PLUGIN[pm->ps->clientNum])
+			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
 			{
 				pm->ps->torsoTimer /= 1.7;
 			}
@@ -1150,7 +1149,7 @@ setAnimLegs:
 				pm->ps->legsTimer = ((animations[anim].numFrames ) * fabs(animations[anim].frameLerp));
 			}
 
-			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE) && !MOD_PLUGIN[pm->ps->clientNum])
+			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
 			{
 				pm->ps->legsTimer /= 1.3;
 			}
