@@ -6110,6 +6110,27 @@ void CG_Player( centity_t *cent ) {
 		vec3_t flamePos2, flameDir2;
 		refEntity_t re;
 		vec4_t modelDetails = { 0, 0, 0, 1 };
+		qboolean displayJetpack = qtrue;
+
+		if (!cent->ghoul2) 
+			displayJetpack = qfalse;
+		if (cent->currentState.eFlags & EF_DEAD) 
+			displayJetpack = qfalse;
+		if (!cg.renderingThirdPerson && cent->currentState.clientNum == cg.clientNum)
+			displayJetpack = qfalse;
+		if (!cg.renderingThirdPerson && cg.snap->ps.clientNum == cent->currentState.clientNum && cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR && (cg.snap->ps.pm_flags & PMF_FOLLOW))
+			displayJetpack = qfalse;
+		if (cg.snap->ps.duelIndex && cg.snap->ps.duelInProgress && cg.snap->ps.duelIndex != cent->currentState.number && cent->currentState.clientNum != cg.clientNum)
+			displayJetpack = qfalse;
+		if (cent->currentState.weapon == WP_EMPLACED_GUN) // Fix me
+			displayJetpack = qfalse;
+		if (CG_IsMindTricked(cent->currentState.trickedentindex, 
+			cent->currentState.trickedentindex2, 
+			cent->currentState.trickedentindex3, 
+			cent->currentState.trickedentindex4, 
+			cg.snap->ps.clientNum)) {
+			displayJetpack = qfalse;
+		}
 
 		if (!cent->bJetPackOn && cent->currentState.groundEntityNum == ENTITYNUM_NONE) {
 			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackIgniteSound);
@@ -6196,7 +6217,7 @@ void CG_Player( centity_t *cent ) {
 				trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackIdleSound);
 			}
 
-			trap_R_AddRefEntityToScene(&re);
+			if (displayJetpack) trap_R_AddRefEntityToScene(&re);
 		}
 	}
 	else
