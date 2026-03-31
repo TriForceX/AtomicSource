@@ -2683,6 +2683,10 @@ void ClientCommand( int clientNum ) {
 	{
 		if (!ent->client->ps.duelInProgress && !ent->client->noclip)
 		{
+			if (!ent->client->ps.stats[MOD_PLUGIN]) {
+				trap_SendServerCommand( ent-g_entities, "print \"Plugin is required to use jetpack features (ATOMIC.pk3)\n\"");
+				return;
+			}
 			//Tox: jetpack launch
 			if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) {
 				ent->client->ps.velocity[2] = 40;
