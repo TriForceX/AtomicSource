@@ -6136,6 +6136,26 @@ void CG_Player( centity_t *cent ) {
 			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackIgniteSound);
 			cent->bJetPackOn = qtrue;
 		}
+
+		if (!cg_jetpack.integer)
+		{
+			usercmd_t cmd = { 0 };
+			int anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+
+			if (cg.clientNum == cg.predictedPlayerState.clientNum && !cg.demoPlayback) {
+				trap_GetUserCmd(trap_GetCurrentCmdNumber(), &cmd);
+				if ((cg.snap->ps.pm_flags & PMF_DUCKED) || CG_InRollAnim(cent)) cmd.upmove = -1;
+			}
+
+			if ((cmd.rightmove < 0 && anim == BOTH_FORCEJUMPLEFT1) || (cmd.rightmove > 0 && anim == BOTH_FORCEJUMPRIGHT1) || (cmd.forwardmove > 0 && anim == BOTH_FORCEJUMP1) || (cmd.forwardmove < 0 && anim == BOTH_FORCEJUMPBACK1)) {
+				// legs
+				cent->currentState.legsAnim = BOTH_FORCEINAIR1;
+				// torso
+				if (cent->currentState.weapon == WP_SABER || !(cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK))) {
+					cent->currentState.torsoAnim = BOTH_FORCEINAIR1;
+				}
+			}
+		}
 		
 		newBolt = trap_G2API_AddBolt(cent->ghoul2, 0, "*chestg");
 
