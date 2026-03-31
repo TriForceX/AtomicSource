@@ -6132,7 +6132,7 @@ void CG_Player( centity_t *cent ) {
 			displayJetpack = qfalse;
 		}
 
-		if (!cent->bJetPackOn && cent->currentState.groundEntityNum == ENTITYNUM_NONE) {
+		if (cg.snap->ps.pm_type != PM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) && !cent->bJetPackOn && cent->currentState.groundEntityNum == ENTITYNUM_NONE) {
 			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackIgniteSound);
 			cent->bJetPackOn = qtrue;
 		}
@@ -6222,7 +6222,7 @@ void CG_Player( centity_t *cent ) {
 	}
 	else
 	{
-		if (cent->bJetPackOn) {
+		if (cg.snap->ps.pm_type != PM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) && cent->bJetPackOn) {
 			trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.media.jetpackOffSound);
 			cent->bJetPackOn = qfalse;
 		}

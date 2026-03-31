@@ -835,13 +835,21 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
-	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+	vec3_t	viewAngles;
+	VectorCopy(ent->client->ps.viewangles, viewAngles); // Tr!Force: fix stop following (viewangles)
+	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
+	ent->client->sess.sessionTeam = TEAM_SPECTATOR;	
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
 	ent->client->ps.weapon = WP_NONE;
+
+	// Tr!Force: fix stop following (state)
+	ent->client->ps.duelInProgress = qfalse; 
+	ent->client->ps.zoomMode = 0;
+	memset(ent->client->ps.powerups, 0, sizeof(ent->client->ps.powerups));
+	SetClientViewAngle(ent, viewAngles);
 }
 
 /*
