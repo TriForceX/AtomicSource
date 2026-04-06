@@ -2118,6 +2118,11 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 //		return;
 //	}
 
+	if (ent->client->ps.eFlags & EF_JETPACK) 
+	{
+		return;
+	}
+
 	if (ent->client->ps.duelTime >= level.time)
 	{
 		return;
@@ -2691,18 +2696,38 @@ void ClientCommand( int clientNum ) {
 	{
 		if (!ent->client->ps.duelInProgress && !ent->client->noclip)
 		{
-			if (!ent->client->ps.stats[MOD_PLUGIN]) {
+			if (!(ent->r.svFlags & SVF_BOT) && !ent->client->ps.stats[MOD_PLUGIN]) {
 				trap_SendServerCommand( ent-g_entities, "print \"Plugin is required to use jetpack features (ATOMIC.pk3)\n\"");
-				return;
 			}
-			//Tox: jetpack launch
-			if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) {
-				ent->client->ps.velocity[2] = 40;
-			}
-			if (ent->client->ps.eFlags & EF_JETPACK) {
-				ent->client->ps.eFlags &= ~EF_JETPACK;
-			} else {
-				ent->client->ps.eFlags |= EF_JETPACK;
+			else 
+			{
+				char arg1[MAX_TOKEN_CHARS];
+				trap_Argv(1, arg1, sizeof(arg1));
+
+				if(trap_Argc() > 1)
+				{
+					if (!Q_stricmp(arg1, "on"))
+					{
+						if (!(ent->client->ps.eFlags & EF_JETPACK)) {
+							ent->client->ps.eFlags |= EF_JETPACK;
+							if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) ent->client->ps.velocity[2] = 40;
+						}
+						return;
+					}
+					else if (!Q_stricmp(arg1, "off"))
+					{
+						if (ent->client->ps.eFlags & EF_JETPACK) ent->client->ps.eFlags &= ~EF_JETPACK;
+						return;
+					}
+				}
+				
+				//Tox: jetpack launch
+				if (ent->client->ps.eFlags & EF_JETPACK) {
+					ent->client->ps.eFlags &= ~EF_JETPACK;
+				} else {
+					ent->client->ps.eFlags |= EF_JETPACK;
+					if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE) ent->client->ps.velocity[2] = 40;
+				}
 			}
 		}
 	}

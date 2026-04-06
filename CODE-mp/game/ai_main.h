@@ -360,6 +360,7 @@ int BotIsAChickenWuss(bot_state_t *bs);
 int GetNearestVisibleWP(vec3_t org, int ignore);
 int GetBestIdleGoal(bot_state_t *bs);
 
+qboolean Bot_IsNearGround(bot_state_t *bs, int distance); // Tr!Force: Bot jetpack check (function link)
 qboolean BotDirectionSafe(bot_state_t *bs, vec3_t dir); // Tr!Force: Bot safe path check (function link)
 void BotHandleMovementSafety(bot_state_t *bs, usercmd_t *ucmd); // Tr!Force: Bot safe path check (function link)
 

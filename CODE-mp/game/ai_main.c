@@ -68,6 +68,7 @@ vmCvar_t bot_debugmessages;
 
 vmCvar_t bot_attachments;
 vmCvar_t bot_camp;
+vmCvar_t bot_jetpack; // Tr!Force: Bot jetpack check
 
 vmCvar_t bot_wp_info;
 vmCvar_t bot_wp_edit;
@@ -603,7 +604,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	// Tr!Force: Bot safe path check (real time)
 	trap_Cvar_Update(&bot_wp_safecheck);
 
-	if (bot_wp_safecheck.integer == 1 || (bot_wp_safecheck.integer == 2 && level.botRouteInvalid)) {
+	if (!(bs->cur_ps.eFlags & EF_JETPACK) && bs->cur_ps.groundEntityNum != ENTITYNUM_NONE && (bot_wp_safecheck.integer == 1 || (bot_wp_safecheck.integer == 2 && level.botRouteInvalid))) {
 		BotHandleMovementSafety(bs, ucmd);
 	}
 }
@@ -5803,6 +5804,27 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else //Tox: BotSaberCombat_AI
 	{
+		trap_Cvar_Update(&bot_jetpack);
+
+		if (bot_jetpack.integer)
+		{
+			if (bs->currentEnemy && bs->currentEnemy->client && bs->frame_Enemy_Vis && bs->frame_Enemy_Len < 800 && (bs->currentEnemy->client->ps.eFlags & EF_JETPACK))
+			{
+				if (!(bs->cur_ps.eFlags & EF_JETPACK)) {
+					trap_EA_Command(bs->client, "jetpack on");
+				}
+				else if (Bot_IsNearGround(bs, 64)) {
+					trap_EA_Jump(bs->client);
+				}
+			}
+			else if (bs->cur_ps.eFlags & EF_JETPACK) {
+				trap_EA_Command(bs->client, "jetpack off");
+			}
+		}
+		else if (bs->cur_ps.eFlags & EF_JETPACK) {
+			trap_EA_Command(bs->client, "jetpack off");
+		}
+
 		if (bs->cur_ps.weapon == WP_SABER) {
 			if (!bs->BOTstop && !(bs->cur_ps.fd.forcePowersActive & (1 << FP_DRAIN)) && !(bs->cur_ps.fd.forcePowersActive & (1 << FP_GRIP)) && !(bs->cur_ps.fd.forcePowersActive & (1 << FP_LIGHTNING))) {
 				if (bs->currentEnemy->client->ps.origin[2] - bs->origin[2] > 20) {
@@ -5819,7 +5841,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				VectorSubtract(bs->currentEnemy->client->ps.origin, g_entities[bs->client].client->ps.origin, a_fo);
 				vectoangles(a_fo, a_fo);
 				if (bs->BOTjump < 60 && InFieldOfVision(bs->viewangles, 90, a_fo)) {
-					if (bs->cur_ps.saberHolstered) {
+					if (bs->cur_ps.saberHolstered && !(bs->cur_ps.eFlags & EF_JETPACK)) {
 						Cmd_ToggleSaber_f(&g_entities[bs->client]);
 					}
 					if (!(bs->frame_Enemy_Len < 40 || (bs->frame_Enemy_Len < 200 && bs->currentEnemy->client->ps.groundEntityNum == ENTITYNUM_NONE))) {
@@ -5836,7 +5858,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 						}
 						if (BG_SaberInIdle(bs->cur_ps.saberMove) && bs->cur_ps.fd.forceGripBeingGripped < level.time && !bs->currentEnemy->client->ps.saberHolstered) {
 							if (bs->BOTtimer < level.time) {
-								trap_EA_Alt_Attack(bs->client);
+								if (!(bs->cur_ps.eFlags & EF_JETPACK)) trap_EA_Alt_Attack(bs->client);
 								bs->BOTtimer = level.time + 400;
 							}
 							if (g_entities[bs->client].client->ps.saberInFlight) {
@@ -5847,16 +5869,16 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 						}
 					}
 					if ((bs->currentEnemy->health > 25 && bs->currentEnemy->health < 50 && !g_entities[bs->client].client->ps.saberInFlight) || g_entities[bs->client].client->ps.duelInProgress) {
-						trap_EA_Attack(bs->client);
+						if (!(bs->cur_ps.eFlags & EF_JETPACK)) trap_EA_Attack(bs->client);
 					}
 					if (BG_SaberInAttack(bs->cur_ps.saberMove) && bs->frame_Enemy_Len > 100) {
-						trap_EA_Attack(bs->client);
+						if (!(bs->cur_ps.eFlags & EF_JETPACK)) trap_EA_Attack(bs->client);
 						trap_EA_MoveForward(bs->client);
 						bs->jumpTime = level.time + 100;
 					}
 					if (bs->currentEnemy->health < 50 && bs->frame_Enemy_Len < 40 && BG_SaberInIdle(bs->cur_ps.saberMove)) {
 						trap_EA_MoveBack(bs->client);
-						trap_EA_Attack(bs->client);
+						if (!(bs->cur_ps.eFlags & EF_JETPACK)) trap_EA_Attack(bs->client);
 					}
 				}
 			}
@@ -6427,6 +6449,7 @@ int BotAISetup( int restart ) {
 
 	trap_Cvar_Register(&bot_attachments, "bot_attachments", "1", 0);
 	trap_Cvar_Register(&bot_camp, "bot_camp", "1", 0);
+	trap_Cvar_Register(&bot_jetpack, "bot_jetpack", "0", 0); // Tr!Force: Bot jetpack check
 
 	trap_Cvar_Register(&bot_wp_info, "bot_wp_info", "1", 0);
 	trap_Cvar_Register(&bot_wp_edit, "bot_wp_edit", "0", CVAR_CHEAT);
@@ -6477,6 +6500,24 @@ int BotAIShutdown( int restart ) {
 		trap_BotLibShutdown();
 	}
 	return qtrue;
+}
+
+/*
+=====================================================================
+Tr!Force: Bot near ground check
+=====================================================================
+*/
+qboolean Bot_IsNearGround(bot_state_t *bs, int distance)
+{
+    trace_t tr;
+    vec3_t start, end;
+
+    VectorCopy(bs->origin, start);
+    VectorCopy(bs->origin, end);
+    end[2] -= distance;
+
+    trap_Trace(&tr, start, NULL, NULL, end, bs->client, MASK_SOLID);
+    return (tr.fraction < 1.0f);
 }
 
 /*
