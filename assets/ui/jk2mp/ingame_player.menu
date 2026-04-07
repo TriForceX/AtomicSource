@@ -70,25 +70,58 @@
 		// Name entry field
 		itemDef 
 		{
-			name namefield
-			type ITEM_TYPE_EDITFIELD
-			style 0
-			text @MENUS0_NAME
-			cvar "ui_Name"
-			maxchars 26
-			rect 				80 40 300 20
+			name 				namefield
+			type 				ITEM_TYPE_EDITFIELD
+			style 				0
+			text 				@MENUS0_NAME
+			cvar 				"ui_Name"
+			maxchars 			28
+			maxPaintChars		20
+			rect 				20 40 225 20
 			textalign			ITEM_ALIGN_LEFT		
 			textalignx 			0
 			textaligny 			-5
 			font				0
-			textscale			1
+			textscale			.9
 			forecolor			1 1 1 1
 			outlinecolor 		1 .5 .5 .5
-			backcolor 0 0 0 0
-			border 0
-			bordercolor 0 0 0 0
+			backcolor 			0 0 0 0
+			border 				0
+			bordercolor 		0 0 0 0
 			descText			@MENUS2_ENTER_YOUR_NAME_HERE
 			visible 1 
+		}
+		
+		// Jetpack selection
+		itemDef 
+		{
+			name				setjetpack
+			style				0	
+			type				ITEM_TYPE_MULTI
+			text				"Jetpack:"
+			rect				250 40 160 20
+			textalign			ITEM_ALIGN_LEFT
+			textalignx			0
+			textaligny			-3
+			outlinecolor		1 .5 .5 .5
+			backcolor			0 0 0 0
+			font				2
+			textscale			.8
+			forecolor			1 1 1 1
+			border 				0
+			bordercolor 		0 0 0 0
+			descText			@MENUS4_JETPACK_STYLE_DESC
+			cvar				"cg_jetpack"
+			cvarFloatList
+            {
+                @MENUS4_JETPACK_STYLE_EFFECT    0
+                @MENUS4_JETPACK_STYLE_MODEL     1
+            }
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
 		}
 
 		// Player Model label		

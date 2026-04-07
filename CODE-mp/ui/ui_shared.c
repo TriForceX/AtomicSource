@@ -3954,7 +3954,8 @@ static bind_t g_bindings[] =
 	{"use_electrobinoculars",	-1,			-1,		-1,	-1},
 	{"use_sentry",		-1,					-1,		-1,	-1},
 	{"cg_thirdperson !",-1,					-1,		-1,	-1},
-
+	{"jetpack",			-1,					-1,		-1,	-1},
+	{"toggleconsole",	-1,					-1,		-1,	-1},
 };
 
 
