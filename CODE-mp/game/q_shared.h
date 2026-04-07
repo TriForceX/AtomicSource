@@ -343,6 +343,7 @@ typedef enum {
 
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #define MAX(x,y) ((x)>(y)?(x):(y))
+#define VALIDCVAR(a) ((a != NULL) && (a[0] != '\0') && (*a != '0'))
 
 //
 // these aren't needed by any of the VMs.  put in another header?

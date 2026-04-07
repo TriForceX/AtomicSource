@@ -742,7 +742,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			client->pers.VoteTime--;
 		}
 		// Tox: display motd when inactive
-		if (level.time > client->MOTDtime) {
+		if (VALIDCVAR(g_cpmotd.string) && (level.time > client->MOTDtime)) {
 			dsp_stringEscape(g_cpmotd.string, CPMOTD, MAX_STRING_CHARS);
 			trap_SendServerCommand(ent-g_entities, va("cp \"%s\"", CPMOTD));
 		}
