@@ -2658,6 +2658,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Stats_f( ent );
 	//JediDog: Begin client commands
 	else if (Q_stricmp(cmd, "dance") == 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		ent->client->ps.pm_type = PM_NORMAL;
+		ent->client->freeze=0;
 		ent->client->ps.saberCanThrow = qfalse;
 		StandardSetBodyAnim(ent, 913, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
 		ent->client->ps.saberMove = LS_NONE;
@@ -2668,6 +2670,7 @@ void ClientCommand( int clientNum ) {
 		}
 		if (ent->client->ps.legsAnim) {
 			ent->client->ps.saberCanThrow = qfalse;
+			ent->client->ps.pm_type = PM_NORMAL;
 			ent->client->freeze=1;
 			StandardSetBodyAnim(ent, BOTH_SIT2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
 			ent->client->ps.saberMove = LS_NONE;
@@ -2683,6 +2686,7 @@ void ClientCommand( int clientNum ) {
 		}
 		if (ent->client->ps.legsAnim) {
 			ent->client->ps.saberCanThrow = qfalse;
+			ent->client->ps.pm_type = PM_NORMAL;
 			ent->client->freeze=1;
 			StandardSetBodyAnim(ent, TORSO_SURRENDER_START, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
 			ent->client->ps.saberMove = LS_NONE;
